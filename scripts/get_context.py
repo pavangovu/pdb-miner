@@ -6,6 +6,30 @@ import numpy as np
 import pandas as pd
 import copy
 import itertools
+import freesasa
+
+
+def ang(Coordinate): # get angles
+             
+                                Angles=[]
+             
+                                for  k in range(2,len(Coordinate)): 
+
+                                     a=np.array(Coordinate[0])
+                                     b=np.array(Coordinate[1])
+                                     c=np.array(Coordinate[k])
+                                     ab=b-a
+                                     ac=c-a
+                                     cosine_angle = np.dot(ab,ac)/(np.linalg.norm(ab)*np.linalg.norm(ac))
+                                     cosine_angle=round(cosine_angle,15) # remove the error
+                                     angle=np.arccos(cosine_angle) 
+                                     if  np.degrees(angle) !=0:
+                                         Angles+=[np.degrees(angle)] # fill the list of angles
+                                     else:
+                                         Angles+=[np.nan]
+            
+                                return(Angles)
+
 
 
 
@@ -16,7 +40,7 @@ def main(args):
       except:
         pass
 
-      with open(f'filtered_{args.halide}.txt', 'r') as f:
+      with open(f'../data/filtered_pdb_ID/filtered_{args.halide}.txt', 'r') as f:
           text=f.readlines()
           base_list=[]
           base_list+=text
@@ -29,22 +53,29 @@ def main(args):
 
                    struct = PandasPdb().fetch_pdb(f'{base_list[i]}')
                    model_name = args.input
+                   structure= freesasa.Structure(f'{base_list[i]}')
 
               elif args.input_type == 'structure':
                    struct = PandasPdb()
                    struct = struct.read_pdb(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
+                   structure= freesasa.Structure(f'{args.input}/pdb{base_list[i].lower()}.ent')
               try:
                         resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+([\d\(.)]+)\s\w+", struct.pdb_text).group(1))
               except:
                         resolution = 100
               print (resolution)
-     
+      
+              result= freesasa.calc(structure)
+              classArea =freesasa.classifyResults(result,structure)
+              print(result.totalArea())
+
               halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == args.halide]
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
               for i in halide_atoms.values:
+                          global Coordinate
                           Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
                           dist = struct.distance(xyz=tuple(i[11:14]), records=('ATOM'))
                           modern_df['dist']=dist # add distanse to subset
@@ -87,33 +118,12 @@ def main(args):
                           for n in modern_subset.values:
                                  xyz2= n[11:14]
                                  Coordinate+=[xyz2] # add coordinates
-       
-                          def ang(Coordinate): # get angles
-             
-                                Angles=[]
-             
-                                for  k in range(2,len(Coordinate)): 
-
-                                     a=np.array(Coordinate[0])
-                                     b=np.array(Coordinate[1])
-                                     c=np.array(Coordinate[k])
-                                     ab=b-a
-                                     ac=c-a
-                                     cosine_angle = np.dot(ab,ac)/(np.linalg.norm(ab)*np.linalg.norm(ac))
-                                     cosine_angle=round(cosine_angle,15) # remove the error
-                                     angle=np.arccos(cosine_angle) 
-                                     if  np.degrees(angle) !=0:
-                                         Angles+=[np.degrees(angle)] # fill the list of angles
-                                     else:
-                                         Angles+=[np.nan]
-            
-                                return(Angles)
         
                           modern_subset1=modern_subset.copy(deep=True)
                           modern_subset1['angles']=ang(Coordinate) # add angles to subset
                           #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                           #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
-                          dict_of_subsets[f'{model_name}:{resolution}:{i[3]}:{nearest[5]}'] =\
+                          dict_of_subsets[f'{model_name}:{"%.3f"% result.totalArea()}:{resolution}:{i[3]}:{nearest[5]}'] =\
                           [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}') for j in modern_subset1.values]
  
 
@@ -150,7 +160,7 @@ if __name__=='__main__':
                         help='Name of output file (root; suffixes will be put themselves).')
     parser.add_argument('-output_dir', type=str, 
                     help='Name of output dir.')
-    parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C')
+    parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA)
     args = parser.parse_args()
 
     main(args)

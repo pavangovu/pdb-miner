@@ -3,8 +3,7 @@ import re
 import os
 import argparse
 
-def main(args):
-    def filter(): 
+def filter(): 
             with open(f'info_{args.halide}.txt', 'a') as w:
                  w.write(f'{header}!{resolution}!{model_name}\n')
 
@@ -24,10 +23,13 @@ def main(args):
                             base_list+=base
               print(base_list)
 
-            with open(f'filtered_{args.halide}.txt', 'w') as f:
+            with open (f'../data/filtered_pdb_ID/filtered_{args.halide}.txt', 'r') as f:
         
                                 print(*base_list, file=f, sep="\n")
 
+def main(args):
+
+    global model_name
     if args.input_type == 'pdb_id':
 
         struct = PandasPdb().fetch_pdb(args.input)
@@ -39,12 +41,13 @@ def main(args):
         struct = struct.read_pdb(args.input)
         model_name = re.search('[\d\w]+$', struct.header).group()
         
-
+    global resolution
     try:
-          resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+([\d\.]+)\s\w+", struct.pdb_text).group(1))
+          resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d\.\d+)", struct.pdb_text).group(1))
     except:
           resolution = 100
-   
+    
+    global header
     try:
          header=re.search("COMPND\s+2\s+MOLECULE\:\s+(.+)\S+", struct.pdb_text).group(1)
     except:
