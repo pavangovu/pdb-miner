@@ -14,16 +14,21 @@ def main(args):
         df = pd.concat([df, pd.read_csv(i, sep="\t", header=None)], axis=0)
     df.index = [i for i in range(0, len(df))]
 
-    model = df[0].str.split(":|,", expand=True)
+    model = df[0].str.split(":", expand=True)
     model_name = model[0]
-    resolution = model[1]
-    halide = model[2]
-    atom_id = model[3]
+    asa = model[1]
+    asa_diff = model[2]
+    resolution = model[3]
+    halide = model[4]
+    atom_id = model[5]
     datka = pd.DataFrame({'model_name': model_name,
+                          'asa': asa,
+                          'asa_diff': asa_diff,
                           'resolution': resolution,
                           'halide': halide,
                           'id':atom_id})
     
+
     datka = pd.concat([datka, df[1].str.split(',')], axis=1).rename(index=str,columns={1:'samples'})
 
     spread_datka = datka.apply(lambda x: pd.Series(x['samples']),axis=1).stack().reset_index(level=1, drop=True)
@@ -34,7 +39,7 @@ def main(args):
              rename(columns={0:'atom_name', 1:'residue_aa', 2:'distance', 3:'angle'})], axis=1).\
              drop('sample', axis=1)
 
-    datka.to_csv(args.output, sep='\t', index=None)
+    datka.to_csv(args.output, sep='\t')
     
 if __name__=='__main__':
 
