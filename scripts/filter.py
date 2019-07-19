@@ -23,7 +23,7 @@ def filter():
                             base_list+=base
               print(base_list)
 
-            with open (f'../data/filtered_pdb_ID/filtered_{args.halide}.txt', 'r') as f:
+            with open (f'../data/filtered_pdb_ID/filtered_{args.halide}.txt', 'a') as f:
         
                                 print(*base_list, file=f, sep="\n")
 
@@ -34,7 +34,7 @@ def main(args):
 
         struct = PandasPdb().fetch_pdb(args.input)
         model_name = args.input
-
+        
     elif args.input_type == 'structure':
 
         struct = PandasPdb()
@@ -54,6 +54,8 @@ def main(args):
          header=model_name
         
     permition=filter()
+    
+
 
 if __name__=='__main__':
 
