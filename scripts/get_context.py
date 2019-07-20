@@ -145,6 +145,8 @@ def main(args):
                          write_output('MODERATE')
               else:
                          write_output('LOW')
+      path=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pdb_one_halide.txt')
+      os.remove(path)
 
 if __name__=='__main__':
 
