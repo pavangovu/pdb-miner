@@ -1,0 +1,10 @@
+X-ray data analysis of proteins containing fluoride, chlorine, bromine and iodine atoms were obtained from www.rcsb.org [1] using Biopython (module Bio.PDB) [2,3].  Entries with the best resolution were selected from alternative entries for the processing using biopandas[4].Halogen neighbors were identified within 5A, the distance from halogen to neighbor was also determined using biopandas.If halogen had more than one neighbor, then the angles were determined between halogen-nearest atom vector and the halogen-atom vector using numpy[5]. The accessable surface area of each halogen was determined using freesasa [6].
+
+
+[1] H.M. Berman, J. Westbrook, Z. Feng, G. Gilliland, T.N. Bhat, H. Weissig, I.N. Shindyalov, P.E. Bourne.
+(2000) The Protein Data Bank Nucleic Acids Research, 28: 235-242.
+[2]Cock PA, Antao T, Chang JT, Chapman BA, Cox CJ, Dalke A, Friedberg I, Hamelryck T, Kauff F, Wilczynski B and de Hoon MJL (2009) Biopython: freely available Python tools for computational molecular biology and bioinformatics. Bioinformatics, 25, 1422-1423
+[3] Hamelryck T and Manderick B (2003) PDB file parser and structure class implemented in Python. Bioinformatics, 22, 2308-2310
+[4] Sebastian Raschka BioPandas: Working with molecular structures in pandas DataFrames. The Journal of Open Source Software 2(14), 2017
+[5] Oliphant, T. E. (2006). A guide to NumPy (Vol. 1). Trelgol Publishing USA.
+[6] Simon Mitternacht (2016) FreeSASA: An open source C library for solvent accessible surface area calculation. F1000Research 5:189 
