@@ -162,7 +162,7 @@ if __name__=='__main__':
                         help='Name of output file (root; suffixes will be put themselves).')
     parser.add_argument('-output_dir', type=str, 
                     help='Name of output dir.')
-    parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA)
+    parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA')
     args = parser.parse_args()
 
     main(args)

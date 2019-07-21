@@ -3,29 +3,31 @@ import re
 import os
 import argparse
 
+
 def filter(): 
-            with open(f'info_{args.halide}.txt', 'a') as w:
-                 w.write(f'{header}!{resolution}!{model_name}\n')
 
-            with open(f'info_{args.halide}.txt', 'r') as f:
-              global base_list
-              base_list=[]
-              text=f.readlines()
-              for line in text:
-                    base=list(line.split('!'))
-                    if base[0] in base_list:
-                               index=base_list.index(base[0])+1
-                               if base[1]<base_list[index]:
-                                   base_list[index-1]=base[0]
-                                   base_list[index]=base[1]
-                                   base_list[index+1]=base[2]
-                    else:
-                            base_list+=base
-              print(base_list)
+  with open(args.output_info, 'a') as w:
+       w.write(f'{header}!{resolution}!{model_name}\n')
 
-            with open (f'../data/filtered_pdb_ID/filtered_{args.halide}.txt', 'a') as f:
-        
-                                print(*base_list, file=f, sep="\n")
+  with open(args.output_info, 'r') as f:
+    global base_list
+    base_list=[]
+    text=f.readlines()
+    for line in text:
+          base=list(line.split('!'))
+          if base[0] in base_list:
+                     index=base_list.index(base[0])+1
+                     if base[1]<base_list[index]:
+                         base_list[index-1]=base[0]
+                         base_list[index]=base[1]
+                         base_list[index+1]=base[2]
+          else:
+                  base_list+=base
+    print(base_list)
+
+  # with open (args.output_filtred, 'a') as f:
+
+                      # print(*base_list, file=f, sep="\n")
 
 def main(args):
 
@@ -65,7 +67,10 @@ if __name__=='__main__':
 #                         help='Path to input file.')
                         help='PDB id or PDB structure in .ent format.')
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
-    parser.add_argument('-halide', type=str, default='F', help='Type of halide')
+    # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
+    parser.add_argument('-output_info', type=str)
+    # parser.add_argument('-output_filtred', type=str)
+
     args = parser.parse_args()
     main(args)
 
