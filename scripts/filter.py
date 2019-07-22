@@ -2,6 +2,7 @@ from biopandas.pdb import PandasPdb
 import re
 import os
 import argparse
+import sys
 
 
 def filter(): 
@@ -23,7 +24,7 @@ def filter():
                          base_list[index+1]=base[2]
           else:
                   base_list+=base
-    print(base_list)
+    # print(base_list)
 
   # with open (args.output_filtred, 'a') as f:
 
@@ -34,8 +35,11 @@ def main(args):
     global model_name
     if args.input_type == 'pdb_id':
 
+      try:
         struct = PandasPdb().fetch_pdb(args.input)
         model_name = args.input
+      except:
+        sys.exit()
         
     elif args.input_type == 'structure':
 
