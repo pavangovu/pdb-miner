@@ -7,6 +7,7 @@ import pandas as pd
 import copy
 import itertools
 import freesasa
+import tempfile
 
 
 def ang(Coordinate): # get angles
@@ -41,40 +42,77 @@ def main(args):
         pass
 
       with open(f'../data/filtered_pdb_ID/filtered_{args.halide}.txt', 'r') as f:
+      
+      
           text=f.readlines()
           base_list=[]
           base_list+=text
           base_list=[line.rstrip() for line in base_list]
           base_list=[i for i in base_list if i !='']
           print (base_list)
-          for i in range(2,len(base_list),3): 
+          for j in range(2,len(base_list),3): 
               
               if args.input_type == 'pdb_id':
 
-                   struct = PandasPdb().fetch_pdb(f'{base_list[i]}')
-                   model_name = args.input
-                   structure= freesasa.Structure(f'{base_list[i]}')
+                    struct = PandasPdb().fetch_pdb(f'{base_list[j]}')
+                    with open('current_pdb.txt', 'w') as w:
+                                   w.write(f'{struct.pdb_text}')
+                    with open('current_pdb.txt', 'r') as w:
+                                f=w.readlines()
+                                 
+                    model_name = args.input
+                    print(model_name)
 
-              elif args.input_type == 'structure':
+              if args.input_type == 'structure':
                    struct = PandasPdb()
-                   struct = struct.read_pdb(f'{args.input}/pdb{base_list[i].lower()}.ent')
-                   print(f'{args.input}/pdb{base_list[i].lower()}.ent')
+                   struct = struct.read_pdb(f'{args.input}/pdb{base_list[j].lower()}.ent')
+                   print(f'{args.input}/pdb{base_list[j].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
-                   structure= freesasa.Structure(f'{args.input}/pdb{base_list[i].lower()}.ent')
+                   with open (f'{args.input}/pdb{base_list[j].lower()}.ent', 'r') as pdb1:
+                        f=pdb1.readlines()
+                   
               try:
-                        resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+([\d\(.)]+)\s\w+", struct.pdb_text).group(1))
+                        resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d\.\d+)", struct.pdb_text).group(1))
               except:
                         resolution = 100
               print (resolution)
-      
-              result= freesasa.calc(structure)
-              classArea =freesasa.classifyResults(result,structure)
-              print(result.totalArea())
 
+      
               halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == args.halide]
+              halide_atoms.index = np.arange(len(halide_atoms))
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
+              S=0
+                 
               for i in halide_atoms.values:
+                          Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
+                          S+=1
+                                
+
+                          for k in range(len(f)):
+                                      if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
+                                         f[k]=''
+                                      if ((f[k][0:6]=='HETATM') and (int(f[k][6:11])!=int(Halide_humber))):
+                                        if (f[k][77:78]==args.halide) or (f[k][76:78]==args.halide):
+                                          f[k]=''
+                          f=[x for x in f if x]
+                          
+                        
+                          with open ('pdb_one_halide.txt', 'w') as pdb:
+                                    print(*f,file=pdb,sep='\n')
+        
+                          try:
+
+                             structure= freesasa.Structure('pdb_one_halide.txt',None,{'hetatm':True})
+                             result= freesasa.calc(structure)
+                             selections=freesasa.selectArea(([f'halide, symbol {args.halide}']),structure, result)
+                             for key in selections:
+                                 asa_halide= '%.3f'% selections[key]
+                             print(asa_halide)
+                          except:
+                             continue
+                         
+              
                           global Coordinate
                           Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
                           dist = struct.distance(xyz=tuple(i[11:14]), records=('ATOM'))
@@ -123,7 +161,7 @@ def main(args):
                           modern_subset1['angles']=ang(Coordinate) # add angles to subset
                           #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                           #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
-                          dict_of_subsets[f'{model_name}:{"%.3f"% result.totalArea()}:{resolution}:{i[3]}:{nearest[5]}'] =\
+                          dict_of_subsets[f'{model_name}:{asa_halide}:{resolution}:{i[3]}:{nearest[5]}'] =\
                           [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}') for j in modern_subset1.values]
  
 
