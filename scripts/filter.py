@@ -26,9 +26,11 @@ def filter():
                   base_list+=base
     # print(base_list)
 
-  # with open (args.output_filtred, 'a') as f:
+  with open (args.output_filtred, 'a') as f:
 
                       # print(*base_list, file=f, sep="\n")
+                      line = '\n'.join(base_list)
+                      f.write(line)
 
 def main(args):
 
@@ -73,7 +75,7 @@ if __name__=='__main__':
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
     # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
     parser.add_argument('-output_info', type=str)
-    # parser.add_argument('-output_filtred', type=str)
+    parser.add_argument('-output_filtred', type=str)
 
     args = parser.parse_args()
     main(args)

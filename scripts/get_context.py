@@ -11,24 +11,24 @@ import freesasa
 
 def ang(Coordinate): # get angles
              
-                                Angles=[]
-             
-                                for  k in range(2,len(Coordinate)): 
+  Angles=[]
 
-                                     a=np.array(Coordinate[0])
-                                     b=np.array(Coordinate[1])
-                                     c=np.array(Coordinate[k])
-                                     ab=b-a
-                                     ac=c-a
-                                     cosine_angle = np.dot(ab,ac)/(np.linalg.norm(ab)*np.linalg.norm(ac))
-                                     cosine_angle=round(cosine_angle,15) # remove the error
-                                     angle=np.arccos(cosine_angle) 
-                                     if  np.degrees(angle) !=0:
-                                         Angles+=[np.degrees(angle)] # fill the list of angles
-                                     else:
-                                         Angles+=[np.nan]
-            
-                                return(Angles)
+  for  k in range(2,len(Coordinate)): 
+
+       a=np.array(Coordinate[0])
+       b=np.array(Coordinate[1])
+       c=np.array(Coordinate[k])
+       ab=b-a
+       ac=c-a
+       cosine_angle = np.dot(ab,ac)/(np.linalg.norm(ab)*np.linalg.norm(ac))
+       cosine_angle=round(cosine_angle,15) # remove the error
+       angle=np.arccos(cosine_angle) 
+       if  np.degrees(angle) !=0:
+           Angles+=[np.degrees(angle)] # fill the list of angles
+       else:
+           Angles+=[np.nan]
+
+  return(Angles)
 
 
 
@@ -40,7 +40,7 @@ def main(args):
       except:
         pass
 
-      with open(f'../data/filtered_pdb_ID/filtered_{args.halide}.txt', 'r') as f:
+      with open(args.input_filter, 'r') as f:
           text=f.readlines()
           base_list=[]
           base_list+=text
@@ -57,21 +57,24 @@ def main(args):
 
               elif args.input_type == 'structure':
                    struct = PandasPdb()
-                   struct = struct.read_pdb(f'{args.input}/pdb{base_list[i].lower()}.ent')
+                   struct = struct.read_pdb(f'{args.input_struct}/pdb{base_list[i].lower()}.ent')
                    print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
-                   structure= freesasa.Structure(f'{args.input}/pdb{base_list[i].lower()}.ent')
+                   structure= freesasa.Structure(f'{args.input_struct}/pdb{base_list[i].lower()}.ent')
               try:
                         resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+([\d\(.)]+)\s\w+", struct.pdb_text).group(1))
               except:
                         resolution = 100
-              print (resolution)
+              print(resolution)
       
               result= freesasa.calc(structure)
               classArea =freesasa.classifyResults(result,structure)
               print(result.totalArea())
 
-              halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == args.halide]
+              halide_type = args.input_filter.split('/')[-1].split('_')[-1].split('.')[0]
+              print(halide_type)
+
+              halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
               for i in halide_atoms.values:
@@ -129,7 +132,7 @@ def main(args):
 
               def write_output(sfx):
 
-                       with open(f'{args.output_dir}/{args.output_file_name}_{sfx}.tsv', 'a') as w:
+                       with open(f'{args.output}_{sfx}.tsv', 'a') as w:
                             for k,v in dict_of_subsets.items():
                                  w.write(f'{k}\t')
                                  for i in range(len(v)):
@@ -152,16 +155,17 @@ if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)    
-    parser.add_argument('-input', type=str,
+    parser.add_argument('-input_struct', type=str)
+    parser.add_argument('-input_struct', type=str,
 #                         help='Path to input file.')
                         help='PDB id or PDB structure in .ent format.')
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
-    parser.add_argument('-halide', type=str, default='F', help='Type of halide')
+    # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
     parser.add_argument('-angstrem_radius', type=int, default=5, help='Threshold radius in Å.')
-    parser.add_argument('-output_file_name', type=str, 
+    parser.add_argument('-output', type=str, 
                         help='Name of output file (root; suffixes will be put themselves).')
-    parser.add_argument('-output_dir', type=str, 
-                    help='Name of output dir.')
+    # parser.add_argument('-output_dir', type=str, 
+    #                 help='Name of output dir.')
     parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA')
     args = parser.parse_args()
 
