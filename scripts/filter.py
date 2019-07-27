@@ -51,7 +51,7 @@ def main(args):
         
     global resolution
     try:
-          resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d\.\d+)", struct.pdb_text).group(1))
+          resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
     except:
           resolution = 100
     
