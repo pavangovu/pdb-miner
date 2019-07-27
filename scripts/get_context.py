@@ -7,29 +7,28 @@ import pandas as pd
 import copy
 import itertools
 import freesasa
-import tempfile
 
 
 def ang(Coordinate): # get angles
              
-                                Angles=[]
-             
-                                for  k in range(2,len(Coordinate)): 
+  Angles=[]
 
-                                     a=np.array(Coordinate[0])
-                                     b=np.array(Coordinate[1])
-                                     c=np.array(Coordinate[k])
-                                     ab=b-a
-                                     ac=c-a
-                                     cosine_angle = np.dot(ab,ac)/(np.linalg.norm(ab)*np.linalg.norm(ac))
-                                     cosine_angle=round(cosine_angle,15) # remove the error
-                                     angle=np.arccos(cosine_angle) 
-                                     if  np.degrees(angle) !=0:
-                                         Angles+=[np.degrees(angle)] # fill the list of angles
-                                     else:
-                                         Angles+=[np.nan]
-            
-                                return(Angles)
+  for  k in range(2,len(Coordinate)): 
+
+       a=np.array(Coordinate[0])
+       b=np.array(Coordinate[1])
+       c=np.array(Coordinate[k])
+       ab=b-a
+       ac=c-a
+       cosine_angle = np.dot(ab,ac)/(np.linalg.norm(ab)*np.linalg.norm(ac))
+       cosine_angle=round(cosine_angle,15) # remove the error
+       angle=np.arccos(cosine_angle) 
+       if  np.degrees(angle) !=0:
+           Angles+=[np.degrees(angle)] # fill the list of angles
+       else:
+           Angles+=[np.nan]
+
+  return(Angles)
 
 
 
@@ -41,53 +40,54 @@ def main(args):
       except:
         pass
 
-      with open(f'../data/filtered_pdb_ID/filtered_{args.halide}.txt', 'r') as f:
-      #with open(f'./filtered_{args.halide}.txt', 'r') as f:
-      
+      with open(args.input_filter, 'r') as f:
           text=f.readlines()
           base_list=[]
           base_list+=text
           base_list=[line.rstrip() for line in base_list]
           base_list=[i for i in base_list if i !='']
           print (base_list)
-          for j in range(2,len(base_list),3): 
+          for i in range(2,len(base_list),3): 
               
               if args.input_type == 'pdb_id':
 
-                    struct = PandasPdb().fetch_pdb(f'{base_list[j]}')
-                    with open('current_pdb.txt', 'w') as w:
+                   struct = PandasPdb().fetch_pdb(f'{base_list[i]}')
+                   model_name = args.input
+                   with open('current_pdb.txt', 'w') as w:
                                    w.write(f'{struct.pdb_text}')        
-                    model_name = base_list[j]
-                    print(model_name)
-                    with open('current_pdb.txt', 'r') as w:
+                   model_name = base_list[i]
+                   print(model_name)
+                   with open('current_pdb.txt', 'r') as w:
                                    f=w.readlines()
-                    for k in range(len(f)):
+                   for k in range(len(f)):
                          if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
                                    f[k]=''
+                 
 
-              if args.input_type == 'structure':
+              elif args.input_type == 'structure':
                    struct = PandasPdb()
-                   struct = struct.read_pdb(f'{args.input}/pdb{base_list[j].lower()}.ent')
-                   print(f'{args.input}/pdb{base_list[j].lower()}.ent')
+                   struct = struct.read_pdb(f'{args.input_struct}/pdb{base_list[i].lower()}.ent')
+                   print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
-                   with open (f'{args.input}/pdb{base_list[j].lower()}.ent', 'r') as pdb1:
+                   with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
                                   f=pdb1.readlines()
                    for k in range(len(f)):
                           if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
                                   f[k]=''
               try:
-                        resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d\.\d+)", struct.pdb_text).group(1))
+                        resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
               except:
                         resolution = 100
-              print (resolution)
-
+              print(resolution)
       
-              halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == args.halide]
-              halide_atoms.index = np.arange(len(halide_atoms))
+             
+
+              halide_type = args.input_filter.split('/')[-1].split('_')[-1].split('.')[0]
+              print(halide_type)
+
+              halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
-              S=0
-                 
               for i in halide_atoms.values:
                           Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
                           S+=1
@@ -100,23 +100,28 @@ def main(args):
 
                           with open ('pdb_one_halide.txt', 'w') as pdb:
                                     print(*f1,file=pdb,sep='\n')
-        
-                          try:
 
-                             structure= freesasa.Structure('pdb_one_halide.txt',None,{'hetatm':True})
-                             result= freesasa.calc(structure)
-                             selections=freesasa.selectArea(([f'halide, symbol {args.halide}']),structure, result)
-                             for key in selections:
-                                 asa_halide= '%.3f'% selections[key]
-                             print(asa_halide)
-                          except:
-                             asa_halide=np.nan
+                          out=subprocess.Popen(["freesasa", "pdb_one_halide.txt", "-H", "--select", f'asa, symbol {args.halide}'],
+                                             stdout=subprocess.PIPE,
+                                             stderr=subprocess.STDOUT,
+                                             encoding='utf-8')
+                          res=out.communicate()
+                          if res[1]==None:
+                               asa=re.search("asa\s+\:\s+(\d+\.\d+)", res[0]).group(1)
+                               print(asa)
+                          else:
+                               asa=np.nan
+                               print(asa)
                          
-              
+                         
+  
+
                           global Coordinate
                           Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
                           dist = struct.distance(xyz=tuple(i[11:14]), records=('ATOM'))
                           modern_df['dist']=dist # add distanse to subset
+                          
+
                           
 
                           if args.C == 1:
@@ -161,13 +166,13 @@ def main(args):
                           modern_subset1['angles']=ang(Coordinate) # add angles to subset
                           #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                           #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
-                          dict_of_subsets[f'{model_name}:{asa_halide}:{resolution}:{i[3]}:{nearest[5]}'] =\
+                          dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
                           [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}') for j in modern_subset1.values]
  
 
               def write_output(sfx):
 
-                       with open(f'{args.output_dir}/{args.output_file_name}_{sfx}.tsv', 'a') as w:
+                       with open(f'{args.output}_{sfx}.tsv', 'a') as w:
                             for k,v in dict_of_subsets.items():
                                  w.write(f'{k}\t')
                                  for i in range(len(v)):
@@ -190,16 +195,17 @@ if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)    
-    parser.add_argument('-input', type=str,
+    parser.add_argument('-input_struct', type=str)
+    parser.add_argument('-input_struct', type=str,
 #                         help='Path to input file.')
                         help='PDB id or PDB structure in .ent format.')
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
-    parser.add_argument('-halide', type=str, default='F', help='Type of halide')
+    # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
     parser.add_argument('-angstrem_radius', type=int, default=5, help='Threshold radius in Å.')
-    parser.add_argument('-output_file_name', type=str, 
+    parser.add_argument('-output', type=str, 
                         help='Name of output file (root; suffixes will be put themselves).')
-    parser.add_argument('-output_dir', type=str, 
-                    help='Name of output dir.')
+    # parser.add_argument('-output_dir', type=str, 
+    #                 help='Name of output dir.')
     parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA')
     args = parser.parse_args()
 
