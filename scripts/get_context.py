@@ -88,13 +88,14 @@ def main(args):
               halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
+              S=0
               for i in halide_atoms.values:
                           Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
                           S+=1
                           f1=copy.deepcopy(f)
                           for k in range(len(f1)):
                                       if ((f1[k][0:6]=='HETATM') and (int(f1[k][6:11])!=int(Halide_humber))):
-                                        if (f1[k][77:78]==args.halide) or (f1[k][76:78]==args.halide):
+                                        if (f1[k][77:78]==halide_type) or (f1[k][76:78]==halide_type):
                                           f1[k]=''
                           f1=[x for x in f1 if x]
 
