@@ -99,7 +99,9 @@ def main(args):
                           f1=[x for x in f1 if x]
 
                           with open ('pdb_one_halide.txt', 'w') as pdb:
-                                    print(*f1,file=pdb,sep='\n')
+                                    #print(*f1,file=pdb,sep='\n')
+                                    line = '\n'.join(f1)
+                                    pdb.write(line)
 
                           out=subprocess.Popen(["freesasa", "pdb_one_halide.txt", "-H", "--select", f'asa, symbol {args.halide}'],
                                              stdout=subprocess.PIPE,
