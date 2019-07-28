@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import copy
 import itertools
-import freesasa
+# import freesasa
 
 
 def ang(Coordinate): # get angles
@@ -46,7 +46,7 @@ def main(args):
           base_list+=text
           base_list=[line.rstrip() for line in base_list]
           base_list=[i for i in base_list if i !='']
-          print (base_list)
+          # print (base_list)
           for i in range(2,len(base_list),3): 
               
               if args.input_type == 'pdb_id':
@@ -56,7 +56,7 @@ def main(args):
                    with open('current_pdb.txt', 'w') as w:
                                    w.write(f'{struct.pdb_text}')        
                    model_name = base_list[i]
-                   print(model_name)
+                   # print(model_name)
                    with open('current_pdb.txt', 'r') as w:
                                    f=w.readlines()
                    for k in range(len(f)):
@@ -67,7 +67,7 @@ def main(args):
               elif args.input_type == 'structure':
                    struct = PandasPdb()
                    struct = struct.read_pdb(f'{args.input_struct}/pdb{base_list[i].lower()}.ent')
-                   print(f'{args.input}/pdb{base_list[i].lower()}.ent')
+                   # print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
                    with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
                                   f=pdb1.readlines()
@@ -195,7 +195,7 @@ if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)    
-    parser.add_argument('-input_struct', type=str)
+    parser.add_argument('-input_filter', type=str)
     parser.add_argument('-input_struct', type=str,
 #                         help='Path to input file.')
                         help='PDB id or PDB structure in .ent format.')
