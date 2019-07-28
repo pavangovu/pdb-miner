@@ -66,10 +66,10 @@ def main(args):
 
               elif args.input_type == 'structure':
                    struct = PandasPdb()
-                   struct = struct.read_pdb(f'{args.input_struct}/pdb{base_list[i].lower()}.ent')
+                   struct = struct.read_pdb(f'pdb{base_list[i].lower()}.ent')
                    # print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
-                   with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
+                   with open (f'pdb{base_list[i].lower()}.ent', 'r') as pdb1:
                                   f=pdb1.readlines()
                    for k in range(len(f)):
                           if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
@@ -88,6 +88,7 @@ def main(args):
               halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
+              S=0
               for i in halide_atoms.values:
                           S=0
                           Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
@@ -95,7 +96,7 @@ def main(args):
                           f1=copy.deepcopy(f)
                           for k in range(len(f1)):
                                       if ((f1[k][0:6]=='HETATM') and (int(f1[k][6:11])!=int(Halide_humber))):
-                                        if (f1[k][77:78]==args.halide) or (f1[k][76:78]==args.halide):
+                                        if (f1[k][77:78]==halide_type) or (f1[k][76:78]==halide_type):
                                           f1[k]=''
                           f1=[x for x in f1 if x]
 
@@ -104,7 +105,7 @@ def main(args):
                                     line = '\n'.join(f1)
                                     pdb.write(line)
 
-                          out=subprocess.Popen(["freesasa", "pdb_one_halide.txt", "-H", "--select", f'asa, symbol {args.halide}'],
+                          out=subprocess.Popen(["freesasa", "pdb_one_halide.txt", "-H", "--select", f'asa, symbol {halide_type}'],
                                              stdout=subprocess.PIPE,
                                              stderr=subprocess.STDOUT,
                                              encoding='utf-8')
