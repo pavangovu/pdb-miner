@@ -104,7 +104,7 @@ def main(args):
                                     line = '\n'.join(f1)
                                     pdb.write(line)
 
-                          out=subprocess.Popen(["freesasa", "pdb_one_halide.txt", "-H", "--select", f'asa, symbol {args.halide}'],
+                          out=subprocess.Popen(["freesasa", "pdb_one_halide.txt", "-H", "--select", f'asa, symbol {halide_type}'],
                                              stdout=subprocess.PIPE,
                                              stderr=subprocess.STDOUT,
                                              encoding='utf-8')
