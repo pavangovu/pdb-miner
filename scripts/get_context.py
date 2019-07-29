@@ -87,12 +87,15 @@ def main(args):
               print(halide_type)
 
               halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
+             
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
               S=0
               for i in halide_atoms.values:
                           
+                          halide_atoms.index=np.arange(len(halide_atoms))
                           Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
+
                           S+=1
                           f1=copy.deepcopy(f)
                           for k in range(len(f1)):
@@ -100,7 +103,7 @@ def main(args):
                                         if (f1[k][77:78]==halide_type) or (f1[k][76:78]==halide_type):
                                           f1[k]=''
                           f1=[x for x in f1 if x]
-
+                          
                           with open ('pdb_one_halide.txt', 'w') as pdb:
                                     #print(*f1,file=pdb,sep='\n')
                                     line = '\n'.join(f1)
