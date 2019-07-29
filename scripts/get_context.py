@@ -91,7 +91,7 @@ def main(args):
               dict_of_subsets = {}
               S=0
               for i in halide_atoms.values:
-                          S=0
+                          
                           Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
                           S+=1
                           f1=copy.deepcopy(f)
