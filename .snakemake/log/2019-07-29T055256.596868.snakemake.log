@@ -1,0 +1,28 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	4	get_context_data
+	5
+
+[Mon Jul 29 05:52:56 2019]
+rule get_context_data:
+    input: data/structures/CL_struct/, data/filtered_pdb_ID/filtered_CL.txt
+    output: data/context/CL_context
+    jobid: 2
+    wildcards: halide=CL
+
+[Mon Jul 29 05:52:56 2019]
+Error in rule get_context_data:
+    jobid: 2
+    output: data/context/CL_context
+    shell:
+        python scripts/get_context.py -input_struct data/structures/CL_struct/ -input_filter data/filtered_pdb_ID/filtered_CL.txt -input_type structure -angstrem_radius 5 -output data/context/CL_context -C 2
+        (exited with non-zero exit code)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /home/d/Projects/Halide_sites/Halide_sites1/Halide_sites/.snakemake/log/2019-07-29T055256.596868.snakemake.log

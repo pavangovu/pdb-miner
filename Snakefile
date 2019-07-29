@@ -22,14 +22,14 @@ rule filter:
 		info="data/info/info_{halide}.txt",
 		filtred="data/filtered_pdb_ID/filtred_{halide}.txt"
 	threads: 4
-	shell: "for i in $(ls {input}); do python scripts/filter.py -input {input}/$i -input_type structure -output_info {output.info} -output_filtred {output.filtred}; done"
+	shell: "for i in $(ls {input}); do python3.6 scripts/filter.py -input {input}/$i -input_type structure -output_info {output.info} -output_filtred {output.filtred}; done"
 
 
 rule get_context_data:
 	input: 
-		struct='data/structures/{halide}_struct',
+		struct='data/structures/{halide}_struct/',
 		filter='data/filtered_pdb_ID/filtered_{halide}.txt'
 	output: directory('data/context/{halide}_context')
 	threads: 4
-	shell: "python scripts/get_context.py -input_struct {input.struct} -input_filter {input.filter} -input_type structure -angstrem_radius 5 -output {output} -C 2"
+	shell: "python3.6 scripts/get_context.py -input_struct {input.struct} -input_filter {input.filter} -input_type structure -angstrem_radius 5 -output {output} -C 2"
 

@@ -7,6 +7,7 @@ import pandas as pd
 import copy
 import itertools
 # import freesasa
+import subprocess
 
 
 def ang(Coordinate): # get angles
@@ -66,10 +67,10 @@ def main(args):
 
               elif args.input_type == 'structure':
                    struct = PandasPdb()
-                   struct = struct.read_pdb(f'pdb{base_list[i].lower()}.ent')
+                   struct = struct.read_pdb(f'{args.input_struct}pdb{base_list[i].lower()}.ent')
                    # print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
-                   with open (f'pdb{base_list[i].lower()}.ent', 'r') as pdb1:
+                   with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
                                   f=pdb1.readlines()
                    for k in range(len(f)):
                           if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
