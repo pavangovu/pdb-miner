@@ -7,6 +7,7 @@ import pandas as pd
 import copy
 import itertools
 # import freesasa
+import subprocess
 
 
 def ang(Coordinate): # get angles
@@ -66,10 +67,10 @@ def main(args):
 
               elif args.input_type == 'structure':
                    struct = PandasPdb()
-                   struct = struct.read_pdb(f'pdb{base_list[i].lower()}.ent')
+                   struct = struct.read_pdb(f'{args.input_struct}/pdb{base_list[i].lower()}.ent')
                    # print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
-                   with open (f'pdb{base_list[i].lower()}.ent', 'r') as pdb1:
+                   with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
                                   f=pdb1.readlines()
                    for k in range(len(f)):
                           if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
@@ -78,20 +79,23 @@ def main(args):
                         resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
               except:
                         resolution = 100
-              print(resolution)
+              # print(resolution)
       
              
 
               halide_type = args.input_filter.split('/')[-1].split('_')[-1].split('.')[0]
-              print(halide_type)
+              # print(halide_type)
 
               halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
+             
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
               S=0
               for i in halide_atoms.values:
-                          S=0
+                          
+                          halide_atoms.index=np.arange(len(halide_atoms))
                           Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
+
                           S+=1
                           f1=copy.deepcopy(f)
                           for k in range(len(f1)):
@@ -99,23 +103,23 @@ def main(args):
                                         if (f1[k][77:78]==halide_type) or (f1[k][76:78]==halide_type):
                                           f1[k]=''
                           f1=[x for x in f1 if x]
-
-                          with open ('pdb_one_halide.txt', 'w') as pdb:
+                          
+                          with open ('../pdb_one_halide.txt', 'w') as pdb:
                                     #print(*f1,file=pdb,sep='\n')
                                     line = '\n'.join(f1)
                                     pdb.write(line)
 
-                          out=subprocess.Popen(["freesasa", "pdb_one_halide.txt", "-H", "--select", f'asa, symbol {halide_type}'],
+                          out=subprocess.Popen(["freesasa", "../pdb_one_halide.txt", "-H", "--select", f'asa, symbol {halide_type}'],
                                              stdout=subprocess.PIPE,
                                              stderr=subprocess.STDOUT,
                                              encoding='utf-8')
                           res=out.communicate()
                           if res[1]==None:
                                asa=re.search("asa\s+\:\s+(\d+\.\d+)", res[0]).group(1)
-                               print(asa)
+                               # print(asa)
                           else:
                                asa=np.nan
-                               print(asa)
+                               # print(asa)
                          
                          
   
@@ -175,16 +179,20 @@ def main(args):
  
 
               def write_output(sfx):
+                try:
+                  os.makedirs(f'data/context/{halide_type}_context')
+                except:
+                  pass
 
-                       with open(f'{args.output}_{sfx}.tsv', 'a') as w:
-                            for k,v in dict_of_subsets.items():
-                                 w.write(f'{k}\t')
-                                 for i in range(len(v)):
-                                     if i == len(v)-1:
-                                             w.write(f'{v[i]}')
-                                     else:
-                                             w.write(f'{v[i]},')
-                                 w.write('\n')
+                with open(f'{args.output}/{halide_type}_context_{sfx}.tsv', 'a') as w:
+                  for k,v in dict_of_subsets.items():
+                    w.write(f'{k}\t')
+                    for i in range(len(v)):
+                      if i == len(v)-1:
+                        w.write(f'{v[i]}')
+                      else:
+                        w.write(f'{v[i]},')
+                    w.write('\n')
 
               if resolution <= 1.5:
                          write_output('HIGH')
@@ -192,8 +200,8 @@ def main(args):
                          write_output('MODERATE')
               else:
                          write_output('LOW')
-      path=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pdb_one_halide.txt')
-      os.remove(path)
+      # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
+      # os.remove(path)
 
 if __name__=='__main__':
 
