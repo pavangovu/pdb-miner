@@ -59,11 +59,14 @@ def main(args):
     try:
          header=re.search("COMPND\s+2\s+MOLECULE\:\s+(.+)\S+", struct.pdb_text).group(1)
     except:
-         header=model_name
-        
-    permition=filter()
-    
-
+         header=model_name 
+    try:
+       experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+)", struct.pdb_text).group(1)
+    except:
+       experiment='NMR'
+    print(experiment)
+    if resolution <=2 and experiment!='NMR':
+      permition=filter()
 
 if __name__=='__main__':
 
