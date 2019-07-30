@@ -67,17 +67,17 @@ def main(args):
 
               elif args.input_type == 'structure':
                    struct = PandasPdb()
-<<<<<<< HEAD
+
                    struct = struct.read_pdb(f'{args.input_struct}pdb{base_list[i].lower()}.ent')
                    # print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
                    with open (f'{args.input_struct}pdb{base_list[i].lower()}.ent', 'r') as pdb1:
-=======
+
                    struct = struct.read_pdb(f'{args.input_struct}/pdb{base_list[i].lower()}.ent')
                    # print(f'{args.input}/pdb{base_list[i].lower()}.ent')
                    model_name = re.search('[\d\w]+$', struct.header).group()
                    with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
->>>>>>> 84a316d7eda6579ec0b795b987e81fa5ac456525
+
                                   f=pdb1.readlines()
                    for k in range(len(f)):
                           if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
@@ -111,11 +111,11 @@ def main(args):
                                           f1[k]=''
                           f1=[x for x in f1 if x]
                           
-<<<<<<< HEAD
+
                           with open ('pdb_one_halide.txt', 'w') as pdb:
-=======
+
                           with open ('../pdb_one_halide.txt', 'w') as pdb:
->>>>>>> 84a316d7eda6579ec0b795b987e81fa5ac456525
+
                                     #print(*f1,file=pdb,sep='\n')
                                     line = '\n'.join(f1)
                                     pdb.write(line)
