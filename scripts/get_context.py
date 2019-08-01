@@ -205,104 +205,51 @@ def main(args):
                            xyz2= n[11:14]
                            Coordinate+=[xyz2] # add coordinates
   
+                    modern_subset1=modern_subset.copy(deep=True)
+                    modern_subset1['angles']=ang(Coordinate) # add angles to subset
 
+                    sites_ang[f'angles_{N}']=modern_subset1['angles']
+                    sites_dist[f'dist_{N}']=modern_subset1['dist']
+                   
+                    sites_ang_sort=pd.DataFrame(np.sort(sites_ang, axis=0),columns=sites_ang.columns)
+                    sites_dist_sort=pd.DataFrame(np.sort(sites_dist, axis=0),columns=sites_dist.columns)
+                    if site_filter_ang(N,modern_subset1['angles'],sites_ang_sort) and site_filter_dist(N,modern_subset1['dist'],sites_dist_sort):
 
-                          global Coordinate
-                          Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
-                          dist = struct.distance(xyz=tuple(i[11:14]), records=('ATOM'))
-                          modern_df['dist']=dist # add distanse to subset
-                          
-
-                          
-
-                          if args.C == 1:
-
-                                 modern_subset =modern_df[modern_df.dist < args.angstrem_radius] # halide neighbors
-                      
-                          
-                          elif args.C == 2:
-
-                                 modern_df1=modern_df[modern_df.dist < args.angstrem_radius]
-                                 modern_subset=modern_df1.loc[~modern_df1['element_symbol'].isin(['C','H'])]
-
-        
-                          elif args.C == 3:
-                                 
-                                 modern_df1 =modern_df[modern_df.dist < args.angstrem_radius]
-                                 modern_subset=modern_df1.loc[~modern_df1['element_symbol'].isin(['C'])]
-
-                          elif args.C == 4:
-                                 modern_df1 =modern_df[modern_df.dist < args.angstrem_radius]
-                                 atoms=list(map("".join,itertools.permutations('BDEGHZ',1)))
-                                 atoms1=list(map("".join,itertools.permutations('BDEGHZ123',2)))
-                                 atoms2=atoms+atoms1
-                                 atom2=['C'+ atom for atom in atoms2] +['O','C']
-                                 modern_subset=modern_df1.loc[~modern_df1['atom_name'].isin(atom2)]
-
-                          modern_subset2=modern_subset.copy(deep=True)
-                          modern_subset2.loc[:,['x_coord','y_coord','z_coord']]=modern_subset[['x_coord','y_coord','z_coord']]-[i[11],i[12],i[13]]      
-                          
-                          xyz=i[11:14] # halide coordinate
-                          for k in range(len(xyz)):
-                                     xyz[k]=0
-                       
-                          Coordinate+=[xyz] # add coordinates
-                          try:
-                                    nearest=modern_subset.loc[modern_subset['dist']==min(modern_subset['dist'])].values[0][[3,5,11,12,13,20,21]] #define the nearest atom
-            
-                                    Coordinate+=[nearest[2:5]] # add the nearest atom's coordinates
-                          except:
-                               continue
-                          for n in modern_subset.values:
-                                 xyz2= n[11:14]
-                                 Coordinate+=[xyz2] # add coordinates
-        
-                          modern_subset1=modern_subset.copy(deep=True)
-                          modern_subset1['angles']=ang(Coordinate) # add angles to subset
-
-                          sites_ang[f'angles_{N}']=modern_subset1['angles']
-                          sites_dist[f'dist_{N}']=modern_subset1['dist']
-                         
-                          sites_ang_sort=pd.DataFrame(np.sort(sites_ang, axis=0),columns=sites_ang.columns)
-                          sites_dist_sort=pd.DataFrame(np.sort(sites_dist, axis=0),columns=sites_dist.columns)
-
-                          if (site_filter_ang(N,modern_subset1['angles'],sites_ang_sort)==1) and (site_filter_dist(N,modern_subset1['dist'],sites_dist_sort)==1):
-
-                               print(f'{halide_type} atom is skipped, similar haligen site have already been got')
-                               continue
+                         print(f'{halide_type} atom is skipped, similar haligen site have already been got')
+                         continue
 
 
 
-                          #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
-                          #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
-                          dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
-                          [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}') for j in modern_subset1.values]
- 
+                    #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
+                    #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
+                    dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
+                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}') for j in modern_subset1.values]
 
-              def write_output(sfx):
-                try:
-                  os.makedirs(f'data/context/{halide_type}_context')
-                except:
-                  pass
 
-                with open(f'{args.output}/{halide_type}_context_{sfx}.tsv', 'a') as w:
-                  for k,v in dict_of_subsets.items():
-                    w.write(f'{k}\t')
-                    for i in range(len(v)):
-                      if i == len(v)-1:
-                        w.write(f'{v[i]}')
-                      else:
-                        w.write(f'{v[i]},')
-                    w.write('\n')
+        def write_output(sfx):
+          try:
+            os.makedirs(f'data/context/{halide_type}_context')
+          except:
+            pass
 
-              if resolution <= 1.5:
-                         write_output('HIGH')
-              elif resolution > 1.5 and resolution < 2.5:
-                         write_output('MODERATE')
-              else:
-                         write_output('LOW')
-      # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
-      # os.remove(path)
+          with open(f'{args.output}/{halide_type}_context_{sfx}.tsv', 'a') as w:
+            for k,v in dict_of_subsets.items():
+              w.write(f'{k}\t')
+              for i in range(len(v)):
+                if i == len(v)-1:
+                  w.write(f'{v[i]}')
+                else:
+                  w.write(f'{v[i]},')
+              w.write('\n')
+
+          if resolution <= 1.5:
+                     write_output('HIGH')
+          elif resolution > 1.5 and resolution < 2.5:
+                     write_output('MODERATE')
+          else:
+                     write_output('LOW')
+  # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
+  # os.remove(path)
 
 if __name__=='__main__':
 
