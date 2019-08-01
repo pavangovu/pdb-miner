@@ -205,7 +205,7 @@ def main(args):
                            xyz2= n[11:14]
                            Coordinate+=[xyz2] # add coordinates
   
-<<<<<<< HEAD
+
 
                           global Coordinate
                           Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
