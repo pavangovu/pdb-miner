@@ -90,35 +90,31 @@ def main(args):
         model_name = re.search('[\d\w]+$', struct.header).group()
         with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
 
-          struct = struct.read_pdb(f'{args.input_struct}/pdb{base_list[i].lower()}.ent')
-          # print(f'{args.input}/pdb{base_list[i].lower()}.ent')
-          model_name = re.search('[\d\w]+$', struct.header).group()
-        with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
-
                       f=pdb1.readlines()
+
         for k in range(len(f)):
               if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
                       f[k]=''
-        try:
+      try:
                   resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
-        except:
+      except:
                   resolution = 100
         # print(resolution)
 
        
 
-        halide_type = args.input_filter.split('/')[-1].split('_')[-1].split('.')[0]
+      halide_type = args.input_filter.split('/')[-1].split('_')[-1].split('.')[0]
         # print(halide_type)
 
-        halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
+      halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
        
-        modern_df=struct.df['ATOM'] # make the subset 
-        dict_of_subsets = {}
-        S=0 # halide counter for using freesasa
-        sites_ang=pd.DataFrame({'number': [np.nan for k in range(0,100)]}).dropna(axis=1, how='all')
-        sites_dist=pd.DataFrame({'number': [np.nan for k in range(0,100)]}).dropna(axis=1, how='all')
-        N=-1 #sites counter for sites filter
-        for i in halide_atoms.values:
+      modern_df=struct.df['ATOM'] # make the subset 
+      dict_of_subsets = {}
+      S=0 # halide counter for using freesasa
+      sites_ang=pd.DataFrame({'number': [np.nan for k in range(0,100)]}).dropna(axis=1, how='all')
+      sites_dist=pd.DataFrame({'number': [np.nan for k in range(0,100)]}).dropna(axis=1, how='all')
+      N=-1 #sites counter for sites filter
+      for i in halide_atoms.values:
                     
                     halide_atoms.index=np.arange(len(halide_atoms))
                     Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
@@ -226,7 +222,7 @@ def main(args):
                     [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}') for j in modern_subset1.values]
 
 
-        def write_output(sfx):
+      def write_output(sfx):
           try:
             os.makedirs(f'data/context/{halide_type}_context')
           except:
