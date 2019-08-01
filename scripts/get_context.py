@@ -30,7 +30,24 @@ def ang(Coordinate): # get angles
            Angles+=[np.nan]
 
   return(Angles)
+ 
+def site_filter_ang():
+  for k in range(0,N):
+           same_degree=0
+           for g in range(len(modern_subset1['angles'])):
+                  if abs(sites_ang_sort.iloc[g][N]-sites_ang_sort.iloc[g][k])<4:
+                          same_degree+=1
+                  if (same_degree==len(modern_subset1['angles']) and (same_degree!=1)):
+                          return(1)
 
+def site_filter_dist():
+   for k in range(0,N):
+          same_degree=0
+          for g in range(len(modern_subset1['dist'])):
+                  if abs(sites_dist_sort.iloc[g][N]-sites_dist_sort.iloc[g][k])<0.5:
+                          same_degree+=1
+                  if same_degree==len(modern_subset1['dist']):
+                          return(1)
 
 
 
@@ -97,12 +114,15 @@ def main(args):
              
               modern_df=struct.df['ATOM'] # make the subset 
               dict_of_subsets = {}
-              S=0
+              S=0 # halide counter for using freesasa
+              sites_ang=pd.DataFrame({'number': [np.nan for k in range(0,100)]}).dropna(axis=1, how='all')
+              sites_dist=pd.DataFrame({'number': [np.nan for k in range(0,100)]}).dropna(axis=1, how='all')
+              N=-1 #sites counter for sites filter
               for i in halide_atoms.values:
                           
                           halide_atoms.index=np.arange(len(halide_atoms))
                           Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
-
+                          N+=1
                           S+=1
                           f1=copy.deepcopy(f)
                           for k in range(len(f1)):
@@ -167,9 +187,13 @@ def main(args):
                                  atom2=['C'+ atom for atom in atoms2] +['O','C']
                                  modern_subset=modern_df1.loc[~modern_df1['atom_name'].isin(atom2)]
 
-                                
+                          modern_subset2=modern_subset.copy(deep=True)
+                          modern_subset2.loc[:,['x_coord','y_coord','z_coord']]=modern_subset[['x_coord','y_coord','z_coord']]-[i[11],i[12],i[13]]      
                           
                           xyz=i[11:14] # halide coordinate
+                          for k in range(len(xyz)):
+                                     xyz[k]=0
+                       
                           Coordinate+=[xyz] # add coordinates
                           try:
                                     nearest=modern_subset.loc[modern_subset['dist']==min(modern_subset['dist'])].values[0][[3,5,11,12,13,20,21]] #define the nearest atom
@@ -183,6 +207,19 @@ def main(args):
         
                           modern_subset1=modern_subset.copy(deep=True)
                           modern_subset1['angles']=ang(Coordinate) # add angles to subset
+
+                          sites_ang[f'angles_{N}']=modern_subset1['angles']
+                          sites_dist[f'dist_{N}']=modern_subset1['dist']
+                         
+                          sites_ang_sort=pd.DataFrame(np.sort(sites_ang, axis=0),columns=sites_ang.columns)
+                          sites_dist_sort=pd.DataFrame(np.sort(sites_dist, axis=0),columns=sites_dist.columns)
+                          if (site_filter_ang()==1) and (site_filter_dist()==1):
+
+                               print(f'{halide_type} atom is skipped, similar haligen site have already been got')
+                               continue
+
+
+
                           #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                           #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
                           dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
