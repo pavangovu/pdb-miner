@@ -118,7 +118,6 @@ def main(args):
                     
                     halide_atoms.index=np.arange(len(halide_atoms))
                     Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
-                    N+=1
                     S+=1
                     f1=copy.deepcopy(f)
                     for k in range(len(f1)):
@@ -182,6 +181,10 @@ def main(args):
                            atoms2=atoms+atoms1
                            atom2=['C'+ atom for atom in atoms2] +['O','C']
                            modern_subset=modern_df1.loc[~modern_df1['atom_name'].isin(atom2)]
+                    
+                    if len(modern_subset['dist'])==0:
+                                continue
+                    N+=1
 
                     modern_subset2=modern_subset.copy(deep=True)
                     modern_subset2.loc[:,['x_coord','y_coord','z_coord']]=modern_subset[['x_coord','y_coord','z_coord']]-[i[11],i[12],i[13]]      
@@ -210,7 +213,9 @@ def main(args):
                    
                     sites_ang_sort=pd.DataFrame(np.sort(sites_ang, axis=0),columns=sites_ang.columns)
                     sites_dist_sort=pd.DataFrame(np.sort(sites_dist, axis=0),columns=sites_dist.columns)
+                    
                     if site_filter_ang(N,modern_subset1['angles'],sites_ang_sort) and site_filter_dist(N,modern_subset1['dist'],sites_dist_sort):
+
 
                          print(f'{halide_type} atom is skipped, similar haligen site have already been got')
                          continue
