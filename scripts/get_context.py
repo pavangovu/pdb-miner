@@ -201,8 +201,9 @@ def main(args):
                            xyz2= n[11:14]
                            Coordinate+=[xyz2] # add coordinates
   
-                    modern_subset1=modern_subset.copy(deep=True)
+                    modern_subset1=modern_subset2.copy(deep=True)
                     modern_subset1['angles']=ang(Coordinate) # add angles to subset
+                    modern_subset1.index = np.arange(len(modern_subset1))
 
                     sites_ang[f'angles_{N}']=modern_subset1['angles']
                     sites_dist[f'dist_{N}']=modern_subset1['dist']
