@@ -304,53 +304,6 @@ def main(args):
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
 
-                    modern_subset1=modern_subset.copy(deep=True)
-                    modern_subset1['angles']=ang(Coordinate) # add angles to subset
-
-                    sites_ang[f'angles_{N}']=modern_subset1['angles']
-                    sites_dist[f'dist_{N}']=modern_subset1['dist']
-                   
-                    sites_ang_sort=pd.DataFrame(np.sort(sites_ang, axis=0),columns=sites_ang.columns)
-                    sites_dist_sort=pd.DataFrame(np.sort(sites_dist, axis=0),columns=sites_dist.columns)
-                    if (site_filter_ang(N,modern_subset1['angles'],sites_ang_sort)==1) and (site_filter_dist(N,modern_subset1['dist'],sites_dist_sort))==1:
-
-                         print(f'{halide_type} atom is skipped, similar haligen site have already been got')
-                         continue
-
-
-
-                    #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
-                    #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
-                    dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
-                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}') for j in modern_subset1.values]
-
-
-        def write_output(sfx):
-          try:
-            os.makedirs(f'data/context/{halide_type}_context')
-          except:
-            pass
-
-          with open(f'{args.output}/{halide_type}_context_{sfx}.tsv', 'a') as w:
-            for k,v in dict_of_subsets.items():
-              w.write(f'{k}\t')
-              for i in range(len(v)):
-                if i == len(v)-1:
-                  w.write(f'{v[i]}')
-                else:
-                  w.write(f'{v[i]},')
-              w.write('\n')
-
-          if resolution <= 1.5:
-                     write_output('HIGH')
-          elif resolution > 1.5 and resolution < 2.5:
-                     write_output('MODERATE')
-          else:
-                     write_output('LOW')
-  # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
-  # os.remove(path)
-
-
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
