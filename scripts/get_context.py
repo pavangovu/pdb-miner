@@ -27,17 +27,17 @@ def ang(Coordinate): # get angles
        if  np.degrees(angle) !=0:
            Angles+=[np.degrees(angle)] # fill the list of angles
        else:
-           Angles+=[np.nan]
+           Angles+=[0]
 
   return(Angles)
  
 def site_filter_ang(N,modern_subset1,sites_ang_sort):
   for k in range(0,N):
            same_degree=0
-           for g in range(len(modern_subset1['angles'])):
+           for g in range(len(modern_subset1)):
                   if abs(sites_ang_sort.iloc[g][N]-sites_ang_sort.iloc[g][k])<4:
                           same_degree+=1
-                  if (same_degree==len(modern_subset1['angles']) and (same_degree!=1)):
+                  if (same_degree==len(modern_subset1) and (same_degree!=1)):
                           return True
 
 def site_filter_dist(N,modern_subset1,sites_dist_sort):
@@ -192,12 +192,12 @@ def main(args):
                  
                     Coordinate+=[xyz] # add coordinates
                     try:
-                              nearest=modern_subset.loc[modern_subset['dist']==min(modern_subset['dist'])].values[0][[3,5,11,12,13,20,21]] #define the nearest atom
+                              nearest=modern_subset2.loc[modern_subset['dist']==min(modern_subset['dist'])].values[0][[3,5,11,12,13,20,21]] #define the nearest atom
       
                               Coordinate+=[nearest[2:5]] # add the nearest atom's coordinates
                     except:
                          continue
-                    for n in modern_subset.values:
+                    for n in modern_subset2.values:
                            xyz2= n[11:14]
                            Coordinate+=[xyz2] # add coordinates
   
