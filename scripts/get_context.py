@@ -43,10 +43,10 @@ def site_filter_ang(N,modern_subset1,sites_ang_sort):
 def site_filter_dist(N,modern_subset1,sites_dist_sort):
    for k in range(0,N):
     same_degree=0
-    for g in range(len(modern_subset1['dist'])):
+    for g in range(len(modern_subset1)):
       if abs(sites_dist_sort.iloc[g][N]-sites_dist_sort.iloc[g][k])<0.5:
         same_degree+=1
-      if same_degree==len(modern_subset1['dist']):
+      if same_degree==len(modern_subset1):
         return True
 
 
