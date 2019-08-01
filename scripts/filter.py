@@ -64,7 +64,7 @@ def main(args):
        experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+)", struct.pdb_text).group(1)
     except:
        experiment='NMR'
-    print(experiment)
+    print(f'{args.input}: {experiment}')
     if resolution <=2 and experiment!='NMR':
       permition=filter()
 
