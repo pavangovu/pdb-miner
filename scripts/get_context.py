@@ -239,14 +239,14 @@ def main(args):
                   w.write(f'{v[i]},')
               w.write('\n')
 
-          if resolution <= 1.5:
+      if resolution <= 1.5:
                      write_output('HIGH')
-          elif resolution > 1.5 and resolution < 2.5:
+      elif resolution > 1.5 and resolution < 2.5:
                      write_output('MODERATE')
-          else:
+      else:
                      write_output('LOW')
-  # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
-  # os.remove(path)
+      # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
+      # os.remove(path)
 
 if __name__=='__main__':
 
