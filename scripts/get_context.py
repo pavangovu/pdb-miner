@@ -27,7 +27,7 @@ def ang(Coordinate): # get angles
        if  np.degrees(angle) !=0:
            Angles+=[np.degrees(angle)] # fill the list of angles
        else:
-           Angles+=[0]
+           Angles+=[-1]
 
   return(Angles)
  
