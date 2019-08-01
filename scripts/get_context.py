@@ -31,7 +31,7 @@ def ang(Coordinate): # get angles
 
   return(Angles)
  
-def site_filter_ang():
+def site_filter_ang(N,modern_subset1,sites_ang_sort):
   for k in range(0,N):
            same_degree=0
            for g in range(len(modern_subset1['angles'])):
@@ -40,7 +40,7 @@ def site_filter_ang():
                   if (same_degree==len(modern_subset1['angles']) and (same_degree!=1)):
                           return(1)
 
-def site_filter_dist():
+def site_filter_dist(N,modern_subset1,sites_dist_sort):
    for k in range(0,N):
           same_degree=0
           for g in range(len(modern_subset1['dist'])):
@@ -213,7 +213,8 @@ def main(args):
                          
                           sites_ang_sort=pd.DataFrame(np.sort(sites_ang, axis=0),columns=sites_ang.columns)
                           sites_dist_sort=pd.DataFrame(np.sort(sites_dist, axis=0),columns=sites_dist.columns)
-                          if (site_filter_ang()==1) and (site_filter_dist()==1):
+
+                          if (site_filter_ang(N,modern_subset1['angles'],sites_ang_sort)==1) and (site_filter_dist(N,modern_subset1['dist'],sites_dist_sort)==1):
 
                                print(f'{halide_type} atom is skipped, similar haligen site have already been got')
                                continue

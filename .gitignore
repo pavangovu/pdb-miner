@@ -1,2 +1,3 @@
 /.snakemake
 /data/structures/*
+/data/context/*
