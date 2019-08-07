@@ -48,7 +48,18 @@ def site_filter_dist(N,modern_subset1,sites_dist_sort):
         same_degree+=1
       if same_degree==len(modern_subset1):
         return True
-
+def  Type_ligands(modern_subset):
+   Type_ligands=[]
+   Type_atoms=['DA','DG','DT','DC','U']
+   for i in modern_subset.values:
+     if  i[0]=='HETATM':
+         Type_ligands+=['MOLECULE']
+     else:
+         if i[5] in Type_atoms:
+            Type_ligands+=['DNA']
+         else:
+            Type_ligands+=['PROTEIN']
+   return(Type_ligands)
 
 
 def main(args):
@@ -206,6 +217,7 @@ def main(args):
   
                     modern_subset1=modern_subset2.copy(deep=True)
                     modern_subset1['angles']=ang(Coordinate) # add angles to subset
+                    modern_subset1['Type_ligands']=Type_ligands(modern_subset)
                     modern_subset1.index = np.arange(len(modern_subset1))
 
                     sites_ang[f'angles_{N}']=modern_subset1['angles']
@@ -225,7 +237,7 @@ def main(args):
                     #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                     #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
                     dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
-                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}') for j in modern_subset1.values]
+                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{23}') for j in modern_subset1.values]
 
 
       def write_output(sfx):
