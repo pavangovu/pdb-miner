@@ -14,6 +14,7 @@ def filter():
     global base_list
     base_list=[]
     text=f.readlines()
+    number_inputs_before_filter=len(text)
     for line in text:
           base=list(line.split('!'))
           if base[0] in base_list:
@@ -31,6 +32,10 @@ def filter():
                       # print(*base_list, file=f, sep="\n")
                       line = '\n'.join(base_list)
                       f.write(line)
+                      #number_x_ray=base_list.count('X-RAY DIFFRACTIO\n')
+                      #number_NMR=base_list.count('NM\n')
+                      number_inputs_after_filter=int(len(base_list)/3)
+  return([number_inputs_before_filter,number_inputs_after_filter])
 
 def main(args):
 
@@ -61,12 +66,13 @@ def main(args):
     except:
          header=model_name 
     try:
-       experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+)", struct.pdb_text).group(1)
+       experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+)\S+", struct.pdb_text).group(1)
     except:
        experiment='NMR'
     print(f'{args.input}: {experiment}')
-    if resolution <=2 and experiment!='NMR':
-      permition=filter()
+    if  experiment!='NMR':
+        permition=filter()
+        print(f'entries have been viewd: {permition[0]} entries have been selected: {permition[1]}')
 
 if __name__=='__main__':
 
