@@ -76,7 +76,8 @@ def main(args):
     base_list=[line.rstrip() for line in base_list]
     base_list=[i for i in base_list if i !='']
     # print (base_list)
-    for i in range(2,len(base_list),3): 
+    for i in range(2,len(base_list),4): 
+     if base_list[i+1]!='NMR':
      
       if args.input_type == 'pdb_id':
 

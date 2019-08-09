@@ -8,7 +8,7 @@ import sys
 def filter(): 
 
   with open(args.output_info, 'a') as w:
-       w.write(f'{header}!{resolution}!{model_name}\n')
+       w.write(f'{header}!{resolution}!{model_name}!{experiment}\n')
 
   with open(args.output_info, 'r') as f:
     global base_list
@@ -32,8 +32,8 @@ def filter():
                       # print(*base_list, file=f, sep="\n")
                       line = '\n'.join(base_list)
                       f.write(line)
-                      #number_x_ray=base_list.count('X-RAY DIFFRACTIO\n')
-                      #number_NMR=base_list.count('NM\n')
+                      number_x_ray=base_list.count('X-RAY DIFFRACTION\n')
+                      number_NMR=base_list.count('NMR\n')
                       number_inputs_after_filter=int(len(base_list)/3)
   return([number_inputs_before_filter,number_inputs_after_filter])
 
@@ -66,13 +66,12 @@ def main(args):
     except:
          header=model_name 
     try:
-       experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+)\S+", struct.pdb_text).group(1)
+       experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+\w)\s+", struct.pdb_text).group(1)
     except:
        experiment='NMR'
     print(f'{args.input}: {experiment}')
-    if  experiment!='NMR':
-        permition=filter()
-        print(f'entries have been viewd: {permition[0]} entries have been selected: {permition[1]}')
+    permition=filter()
+    print(f'entries have been viewd: {permition[0]} entries have been selected: {permition[1]} entries with X-RAY: {permition[2]} entries with NMR: {permition[3]} ')
 
 if __name__=='__main__':
 
