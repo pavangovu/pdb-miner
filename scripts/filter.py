@@ -5,7 +5,7 @@ import argparse
 import sys
 
 
-def filter(): 
+def filter(model_name,resolution,header,experiment): 
 
   with open(args.output_info, 'a') as w:
        w.write(f'{header}!{resolution}!{model_name}!{experiment}\n')
@@ -35,11 +35,11 @@ def filter():
                       number_x_ray=base_list.count('X-RAY DIFFRACTION\n')
                       number_NMR=base_list.count('NMR\n')
                       number_inputs_after_filter=int(len(base_list)/3)
-  return([number_inputs_before_filter,number_inputs_after_filter])
+  return([number_inputs_before_filter,number_inputs_after_filter,number_x_ray,number_NMR])
 
 def main(args):
 
-    global model_name
+   
     if args.input_type == 'pdb_id':
 
       try:
@@ -54,13 +54,13 @@ def main(args):
         struct = struct.read_pdb(args.input)
         model_name = re.search('[\d\w]+$', struct.header).group()
         
-    global resolution
+    
     try:
           resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
     except:
           resolution = 100
     
-    global header
+    
     try:
          header=re.search("COMPND\s+2\s+MOLECULE\:\s+(.+)\S+", struct.pdb_text).group(1)
     except:
@@ -70,7 +70,7 @@ def main(args):
     except:
        experiment='NMR'
     print(f'{args.input}: {experiment}')
-    permition=filter()
+    permition=filter(model_name,resolution,header,experiment)
     print(f'entries have been viewd: {permition[0]} entries have been selected: {permition[1]} entries with X-RAY: {permition[2]} entries with NMR: {permition[3]} ')
 
 if __name__=='__main__':
