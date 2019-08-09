@@ -64,7 +64,7 @@ def main(args):
     try:
          header=re.search("COMPND\s+2\s+MOLECULE\:\s+(.+)\S+", struct.pdb_text).group(1)
     except:
-         header=model_name 123
+         header=model_name
     try:
        experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+\w)\s+", struct.pdb_text).group(1)
     except:
