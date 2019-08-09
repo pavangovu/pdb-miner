@@ -34,7 +34,7 @@ def filter(model_name,resolution,header,experiment):
                       f.write(line)
                       number_x_ray=base_list.count('X-RAY DIFFRACTION\n')
                       number_NMR=base_list.count('NMR\n')
-                      number_inputs_after_filter=int(len(base_list)/3)
+                      number_inputs_after_filter=int(len(base_list)/4)
   return([number_inputs_before_filter,number_inputs_after_filter,number_x_ray,number_NMR])
 
 def main(args):
@@ -64,7 +64,7 @@ def main(args):
     try:
          header=re.search("COMPND\s+2\s+MOLECULE\:\s+(.+)\S+", struct.pdb_text).group(1)
     except:
-         header=model_name 
+         header=model_name 123
     try:
        experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+\w)\s+", struct.pdb_text).group(1)
     except:
