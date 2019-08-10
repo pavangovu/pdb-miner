@@ -43,11 +43,13 @@ def site_filter_ang(N,modern_subset1,sites_ang_sort):
 def site_filter_dist(N,modern_subset1,sites_dist_sort):
    for k in range(0,N):
     same_degree=0
+    stop=sites_dist_sort[f'dist_{N}']<5
     for g in range(len(modern_subset1)):
       if abs(sites_dist_sort.iloc[g][N]-sites_dist_sort.iloc[g][k])<0.5:
         same_degree+=1
-      if same_degree==len(modern_subset1):
+      if same_degree==stop.sum():
         return True
+
 def  Type_ligands(modern_subset):
    Type_ligands=[]
    Type_atoms=['DA','DG','DT','DC','U']
@@ -131,6 +133,7 @@ def main(args):
                     halide_atoms.index=np.arange(len(halide_atoms))
                     Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
                     S+=1
+                    N+=1
                     f1=copy.deepcopy(f)
                     for k in range(len(f1)):
                                 if ((f1[k][0:6]=='HETATM') and (int(f1[k][6:11])!=int(Halide_humber))):
@@ -172,22 +175,22 @@ def main(args):
 
                     if args.C == 1:
 
-                           modern_subset =modern_df[modern_df.dist < args.angstrem_radius] # halide neighbors
+                           modern_subset =modern_df[modern_df.dist < args.angstrem_radius+0.5] # halide neighbors
                 
                     
                     elif args.C == 2:
 
-                           modern_df1=modern_df[modern_df.dist < args.angstrem_radius]
+                           modern_df1=modern_df[modern_df.dist < args.angstrem_radius+0.5]
                            modern_subset=modern_df1.loc[~modern_df1['element_symbol'].isin(['C','H'])]
 
   
                     elif args.C == 3:
                            
-                           modern_df1 =modern_df[modern_df.dist < args.angstrem_radius]
+                           modern_df1 =modern_df[modern_df.dist < args.angstrem_radius+0.5]
                            modern_subset=modern_df1.loc[~modern_df1['element_symbol'].isin(['C'])]
 
                     elif args.C == 4:
-                           modern_df1 =modern_df[modern_df.dist < args.angstrem_radius]
+                           modern_df1 =modern_df[modern_df.dist < args.angstrem_radius+0.5]
                            atoms=list(map("".join,itertools.permutations('BDEGHZ',1)))
                            atoms1=list(map("".join,itertools.permutations('BDEGHZ123',2)))
                            atoms2=atoms+atoms1
@@ -196,7 +199,6 @@ def main(args):
                     
                     if len(modern_subset['dist'])==0:
                                 continue
-                    N+=1
 
                     modern_subset2=modern_subset.copy(deep=True)
                     modern_subset2.loc[:,['x_coord','y_coord','z_coord']]=modern_subset[['x_coord','y_coord','z_coord']]-[i[11],i[12],i[13]]      
@@ -227,18 +229,19 @@ def main(args):
                     sites_ang_sort=pd.DataFrame(np.sort(sites_ang, axis=0),columns=sites_ang.columns)
                     sites_dist_sort=pd.DataFrame(np.sort(sites_dist, axis=0),columns=sites_dist.columns)
                     
-                    if site_filter_ang(N,modern_subset1['angles'],sites_ang_sort) and site_filter_dist(N,modern_subset1['dist'],sites_dist_sort):
+                    if  site_filter_dist(N,modern_subset1['dist'],sites_dist_sort):
 
 
-                         print(f'{halide_type} atom is skipped, similar haligen site have already been got')
+                         print(f'{halide_type} atom is skipped, similar haligen site around 5A have already been got')
+                         
                          continue
 
-
-
+                    modern_subset_exit=modern_subset1[modern_subset1.dist < args.angstrem_radius]
+                    
                     #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                     #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
                     dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
-                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}') for j in modern_subset1.values]
+                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
 
 
       def write_output(sfx):
