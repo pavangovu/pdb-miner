@@ -198,6 +198,7 @@ def main(args):
                            modern_subset=modern_df1.loc[~modern_df1['atom_name'].isin(atom2)]
                     
                     if len(modern_subset['dist'])==0:
+                                N-=1
                                 continue
 
                     modern_subset2=modern_subset.copy(deep=True)
