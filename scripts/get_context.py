@@ -238,7 +238,7 @@ def main(args):
                     #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                     #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
                     dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
-                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{23}') for j in modern_subset1.values]
+                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}') for j in modern_subset1.values]
 
 
       def write_output(sfx):
