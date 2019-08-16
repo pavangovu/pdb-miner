@@ -35,7 +35,11 @@ def filter(model_name,resolution,header,experiment):
                       number_x_ray=base_list.count('X-RAY DIFFRACTION\n')
                       number_NMR=base_list.count('NMR\n')
                       number_inputs_after_filter=int(len(base_list)/4)
-  return([number_inputs_before_filter,number_inputs_after_filter,number_x_ray,number_NMR])
+                      low_resolution=0
+                      for i in range(1,len(base_list),4):
+                         if float(base_list[i])>2:
+                             low_resolution+=1
+  return([number_inputs_before_filter,number_inputs_after_filter,number_x_ray,number_NMR,low_resolution])
 
 def main(args):
 
@@ -71,8 +75,7 @@ def main(args):
        experiment='NMR'
     print(f'{args.input}: {experiment}')
     permition=filter(model_name,resolution,header,experiment)
-    print(f'entries have been viewd: {permition[0]} entries have been selected: {permition[1]} entries with X-RAY: {permition[2]} entries with NMR: {permition[3]} ')
-
+    print(f'entries have been viewd: {permition[0]}, entries have been selected: {permition[1]}, entries with X-RAY: {permition[2]}, entries with NMR: {permition[3]}, entries with resolution > 2: {permition[4]}')
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(

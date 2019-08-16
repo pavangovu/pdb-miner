@@ -31,34 +31,30 @@ def ang(Coordinate): # get angles
 
   return(Angles)
  
-def site_filter_ang(N,modern_subset1,sites_ang_sort):
-  for k in range(0,N):
-           same_degree=0
-           for g in range(len(modern_subset1)):
-                  if abs(sites_ang_sort.iloc[g][N]-sites_ang_sort.iloc[g][k])<4:
-                          same_degree+=1
-                  if (same_degree==len(modern_subset1) and (same_degree!=1)):
-                          return True
 
-def site_filter_dist(N,modern_subset1,sites_dist_sort):
+def site_filter_dist(N,modern_subset1,sites):
    for k in range(0,N):
     same_degree=0
-    stop=sites_dist_sort[f'dist_{N}']<5
+    stop=sites[f'dist_{N}']<5
     for g in range(len(modern_subset1)):
-      if abs(sites_dist_sort.iloc[g][N]-sites_dist_sort.iloc[g][k])<0.5:
+     if sites.iloc[g][N]<5:
+      if abs(sites.iloc[g][N]-sites.iloc[g][k])<0.5:
         same_degree+=1
       if same_degree==stop.sum():
         return True
 
 def  Type_ligands(modern_subset):
    Type_ligands=[]
-   Type_atoms=['DA','DG','DT','DC','U']
+   Type_atoms_DNA=['DA','DG','DT','DC']
+   Type_atoms_RNA=['A','G','C','U']
    for i in modern_subset.values:
      if  i[0]=='HETATM':
          Type_ligands+=['MOLECULE']
      else:
-         if i[5] in Type_atoms:
+         if i[5] in Type_atoms_DNA:
             Type_ligands+=['DNA']
+         elif i[5] in Type_atoms_RNA:
+             Type_ligands+=['RNA']
          else:
             Type_ligands+=['PROTEIN']
    return(Type_ligands)
@@ -70,7 +66,8 @@ def main(args):
     os.makedirs(args.output_dir)
   except:
     pass
-
+  all_sites=0
+  all_site_deleted=0
   with open(args.input_filter, 'r') as f:
     text=f.readlines()
     base_list=[]
@@ -79,7 +76,7 @@ def main(args):
     base_list=[i for i in base_list if i !='']
     # print (base_list)
     for i in range(2,len(base_list),4): 
-     if base_list[i+1]!='NMR':
+     if (base_list[i+1]!='NMR') and (float(base_list[i-1])<2):
      
       if args.input_type == 'pdb_id':
 
@@ -125,11 +122,11 @@ def main(args):
       modern_df=struct.df['ATOM'] # make the subset 
       dict_of_subsets = {}
       S=0 # halide counter for using freesasa
-      sites_ang=pd.DataFrame({'number': [np.nan for k in range(0,100)]}).dropna(axis=1, how='all')
-      sites_dist=pd.DataFrame({'number': [np.nan for k in range(0,100)]}).dropna(axis=1, how='all')
+      sites=pd.DataFrame()
       N=-1 #sites counter for sites filter
+      site_deleted=0
       for i in halide_atoms.values:
-                    
+                    sites_dist=pd.DataFrame()
                     halide_atoms.index=np.arange(len(halide_atoms))
                     Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
                     S+=1
@@ -224,15 +221,15 @@ def main(args):
                     modern_subset1['Type_ligands']=Type_ligands(modern_subset)
                     modern_subset1.index = np.arange(len(modern_subset1))
 
-                    sites_ang[f'angles_{N}']=modern_subset1['angles']
                     sites_dist[f'dist_{N}']=modern_subset1['dist']
-                   
-                    sites_ang_sort=pd.DataFrame(np.sort(sites_ang, axis=0),columns=sites_ang.columns)
-                    sites_dist_sort=pd.DataFrame(np.sort(sites_dist, axis=0),columns=sites_dist.columns)
+  
+                    sites_dist_sort= sites_dist.sort_values(f'dist_{N}')
+                    sites_dist_sort.index = np.arange(len(sites_dist_sort))
+                    sites=pd.concat([sites,sites_dist_sort], axis=1)
                     
-                    if  site_filter_dist(N,modern_subset1['dist'],sites_dist_sort):
-
-
+                    if  site_filter_dist(N,modern_subset1['dist'],sites):
+                         
+                         site_deleted+=1
                          print(f'{halide_type} atom is skipped, similar haligen site around 5A have already been got')
                          
                          continue
@@ -243,7 +240,9 @@ def main(args):
                     #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
                     dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
                     [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
-
+      print(f'get {len(halide_atoms)} {args.halide} sites, {site_deleted} sites were deleted')
+      all_sites+=len(halide_atoms)
+      all_site_deleted+=site_deleted
 
       def write_output(sfx):
           try:
@@ -269,7 +268,7 @@ def main(args):
                      write_output('LOW')
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
-
+  print(f'get {all_sites} {args.halide} sites at all, {all_site_deleted} sites at all were deleted')
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
