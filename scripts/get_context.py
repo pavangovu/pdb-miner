@@ -68,6 +68,10 @@ def main(args):
     pass
   all_sites=0
   all_site_deleted=0
+  all_number_PROTEIN_sites=0
+  all_number_DNA_sites=0
+  all_number_RNA_sites=0
+  all_number_OTHER_sites=0
   with open(args.input_filter, 'r') as f:
     text=f.readlines()
     base_list=[]
@@ -125,6 +129,10 @@ def main(args):
       sites=pd.DataFrame()
       N=-1 #sites counter for sites filter
       site_deleted=0
+      number_DNA_sites=0
+      number_RNA_sites=0
+      number_PROTEIN_sites=0
+      number_OTHER_sites=0
       for i in halide_atoms.values:
                     sites_dist=pd.DataFrame()
                     halide_atoms.index=np.arange(len(halide_atoms))
@@ -196,6 +204,7 @@ def main(args):
                     
                     if len(modern_subset['dist'])==0:
                                 N-=1
+                                site_deleted+=1
                                 continue
 
                     modern_subset2=modern_subset.copy(deep=True)
@@ -235,14 +244,25 @@ def main(args):
                          continue
 
                     modern_subset_exit=modern_subset1[modern_subset1.dist < args.angstrem_radius]
-                    
+                    if 'DNA' in modern_subset_exit.values:
+                         number_DNA_sites+=1
+                    if 'RNA' in modern_subset_exit.values:
+                         number_RNA_sites+=1
+                    if 'MOLECULE' in modern_subset_exit.values:
+                         number_OTHER_sites+=1
+                    if 'PROTEIN' in modern_subset_exit.values:
+                         number_PROTEIN_sites+=1
                     #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                     #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
                     dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
                     [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
-      print(f'get {len(halide_atoms)} {args.halide} sites, {site_deleted} sites were deleted')
+      print(f'get {len(halide_atoms)} {args.halide} sites, {site_deleted} sites were deleted. In selected sites - protein sites: {number_PROTEIN_sites}, DNA sites: {number_DNA_sites}, RNA sites: {number_RNA_sites}, other sites: {number_OTHER_sites}')
       all_sites+=len(halide_atoms)
       all_site_deleted+=site_deleted
+      all_number_PROTEIN_sites+=number_PROTEIN_sites
+      all_number_DNA_sites+=number_DNA_sites
+      all_number_RNA_sites+=number_RNA_sites
+      all_number_OTHER_sites+=number_OTHER_sites
 
       def write_output(sfx):
           try:
@@ -268,7 +288,7 @@ def main(args):
                      write_output('LOW')
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
-  print(f'get {all_sites} {args.halide} sites at all, {all_site_deleted} sites at all were deleted')
+  print(f'get {all_sites} {args.halide} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(

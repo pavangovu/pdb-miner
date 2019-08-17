@@ -27,6 +27,7 @@ def filter(model_name,resolution,header,experiment):
                   base_list+=base
     # print(base_list)
 
+
   with open (args.output_filtred, 'w') as f:
 
                       # print(*base_list, file=f, sep="\n")
