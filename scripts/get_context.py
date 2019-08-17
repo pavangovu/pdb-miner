@@ -256,7 +256,7 @@ def main(args):
                     #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
                     dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
                     [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
-      print(f'get {len(halide_atoms)} {args.halide} sites, {site_deleted} sites were deleted. In selected sites - protein sites: {number_PROTEIN_sites}, DNA sites: {number_DNA_sites}, RNA sites: {number_RNA_sites}, other sites: {number_OTHER_sites}')
+      print(f'get {len(halide_atoms)} {halide_type} sites, {site_deleted} sites were deleted. In selected sites - protein sites: {number_PROTEIN_sites}, DNA sites: {number_DNA_sites}, RNA sites: {number_RNA_sites}, other sites: {number_OTHER_sites}')
       all_sites+=len(halide_atoms)
       all_site_deleted+=site_deleted
       all_number_PROTEIN_sites+=number_PROTEIN_sites
@@ -288,7 +288,7 @@ def main(args):
                      write_output('LOW')
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
-  print(f'get {all_sites} {args.halide} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')
+  print(f'get {all_sites} {halide_type} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
