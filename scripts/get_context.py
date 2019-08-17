@@ -246,11 +246,11 @@ def main(args):
                     modern_subset_exit=modern_subset1[modern_subset1.dist < args.angstrem_radius]
                     if 'DNA' in modern_subset_exit.values:
                          number_DNA_sites+=1
-                    if 'RNA' in modern_subset_exit.values:
+                    elif 'RNA' in modern_subset_exit.values:
                          number_RNA_sites+=1
-                    if 'MOLECULE' in modern_subset_exit.values:
+                    elif 'MOLECULE' in modern_subset_exit.values:
                          number_OTHER_sites+=1
-                    if 'PROTEIN' in modern_subset_exit.values:
+                    else:
                          number_PROTEIN_sites+=1
                     #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
                     #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
