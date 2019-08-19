@@ -296,9 +296,25 @@ def main(args):
   with open ('stat.txt', 'a') as w:
            w.write(f'Halide: {halide_type}\n')
            with open(f'data/info/info_{halide_type}.txt', 'r') as f:
-              text=f.readlines()
-              number_inputs=len(text)
+              text1=f.readlines()
+              number_inputs=len(text1)
+              base_list1=[]
+              for line in text1:
+                    base1=list(line.split('!'))
+                    base_list1+=base1
+              total_2=0
+              for i in range(1,len(base_list1),4): 
+                    if float(base_list1[i])<2:
+                       total_2+=1
+              x_ray1=base_list1.count('X-RAY DIFFRACTION\n')
+              NMR1=base_list1.count('NMR\n')
            Total_entries_after_homologous_filter=int(len(base_list)/4)
+           w.write('Total_statistics\n')
+           w.write(f'Total_entries: {number_inputs}\n')
+           w.write(f'Entries_with_resolution_more_then_2: {total_2}\n')
+           w.write(f'X_RAY_entries: {x_ray1}\n')
+           w.write(f'NMR_entries: {NMR1}\n')
+           w.write('Statistics_after_homologous_filter\n')
            w.write(f'Total_entries: {number_inputs}\n')
            w.write(f'Total_entries_after_homologous_filter: {Total_entries_after_homologous_filter}\n')
            w.write(f'Entries_with_resolution_more_then_2: {high_resolution}\n')
