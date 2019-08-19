@@ -73,14 +73,18 @@ def main(args):
   all_number_RNA_sites=0
   all_number_OTHER_sites=0
   with open(args.input_filter, 'r') as f:
-    text=f.readlines()
-    base_list=[]
-    base_list+=text
-    base_list=[line.rstrip() for line in base_list]
-    base_list=[i for i in base_list if i !='']
-    # print (base_list)
-    for i in range(2,len(base_list),4): 
-     if (base_list[i+1]!='NMR') and (float(base_list[i-1])<2):
+   text=f.readlines()
+   base_list=[]
+   base_list+=text
+   base_list=[line.rstrip() for line in base_list]
+   base_list=[i for i in base_list if i !='']
+   # print (base_list)
+   high_resolution=0
+   for i in range(2,len(base_list),4): 
+    if (float(base_list[i-1])<2):
+     high_resolution+=1
+     if(base_list[i+1]!='NMR'):
+      if args.input_type == 'pdb_id':
      
       if args.input_type == 'pdb_id':
 
@@ -202,7 +206,7 @@ def main(args):
                            atom2=['C'+ atom for atom in atoms2] +['O','C']
                            modern_subset=modern_df1.loc[~modern_df1['atom_name'].isin(atom2)]
                     
-                    if len(modern_subset['dist'])==0:
+                    if len(modern_subset[modern_subset.dist<5])==0:
                                 N-=1
                                 site_deleted+=1
                                 continue
@@ -289,6 +293,25 @@ def main(args):
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
   print(f'get {all_sites} {halide_type} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')
+  with open ('stat.txt', 'a') as w:
+           w.write(f'Halide: {halide_type}\n')
+           with open(f'data/info/info_{halide_type}.txt', 'r') as f:
+              text=f.readlines()
+              number_inputs=len(text)
+           Total_entries_after_homologous_filter=int(len(base_list)/4)
+           w.write(f'Total_entries: {number_inputs}\n')
+           w.write(f'Total_entries_after_homologous_filter: {Total_entries_after_homologous_filter}\n')
+           w.write(f'Entries_with_resolution_more_then_2: {high_resolution}\n')
+           x_ray=base_list.count('X-RAY DIFFRACTION\n')
+           NMR=base_list.count('NMR\n')
+           w.write(f'X_RAY_entries: {x_ray}\n')
+           w.write(f'NMR_entries: {NMR}\n')
+           w.write(f'Total_sites: {all_sites}\n')
+           w.write(f'Total_site_deleted: {all_site_deleted}\n')
+           w.write(f'Protein_sites: {all_number_PROTEIN_sites}\n')
+           w.write(f'DNA_sites: {all_number_DNA_sites}\n')
+           w.write(f'RNA_sites: {all_number_RNA_sites}\n')
+           w.write(f'Other_sites: {all_number_OTHER_sites}\n\n')
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
