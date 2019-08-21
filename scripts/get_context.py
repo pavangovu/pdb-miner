@@ -85,8 +85,6 @@ def main(args):
      high_resolution+=1
      if(base_list[i+1]!='NMR'):
       if args.input_type == 'pdb_id':
-     
-      if args.input_type == 'pdb_id':
 
        struct = PandasPdb().fetch_pdb(f'{base_list[i]}')
        model_name = args.input
