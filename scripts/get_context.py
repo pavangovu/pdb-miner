@@ -81,7 +81,7 @@ def main(args):
    # print (base_list)
    high_resolution=0
    for i in range(2,len(base_list),4): 
-    if (float(base_list[i-1])<2):
+    if (float(base_list[i-1])<=2):
      high_resolution+=1
      if(base_list[i+1]!='NMR'):
       if args.input_type == 'pdb_id':
@@ -258,7 +258,7 @@ def main(args):
                     #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
                     dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
                     [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
-      print(f'get {len(halide_atoms)} {halide_type} sites, {site_deleted} sites were deleted. In selected sites - protein sites: {number_PROTEIN_sites}, DNA sites: {number_DNA_sites}, RNA sites: {number_RNA_sites}, other sites: {number_OTHER_sites}')
+      #print(f'get {len(halide_atoms)} {halide_type} sites, {site_deleted} sites were deleted. In selected sites - protein sites: {number_PROTEIN_sites}, DNA sites: {number_DNA_sites}, RNA sites: {number_RNA_sites}, other sites: {number_OTHER_sites}')
       all_sites+=len(halide_atoms)
       all_site_deleted+=site_deleted
       all_number_PROTEIN_sites+=number_PROTEIN_sites
@@ -290,7 +290,7 @@ def main(args):
                      write_output('LOW')
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
-  print(f'get {all_sites} {halide_type} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')
+  #print(f'get {all_sites} {halide_type} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')
   with open ('stat.txt', 'a') as w:
            w.write(f'Halide: {halide_type}\n')
            with open(f'data/info/info_{halide_type}.txt', 'r') as f:
@@ -302,19 +302,19 @@ def main(args):
                     base_list1+=base1
               total_2=0
               for i in range(1,len(base_list1),4): 
-                    if float(base_list1[i])<2:
+                    if float(base_list1[i])<=2:
                        total_2+=1
               x_ray1=base_list1.count('X-RAY DIFFRACTION\n')
               NMR1=base_list1.count('NMR\n')
            Total_entries_after_homologous_filter=int(len(base_list)/4)
            w.write('Total_statistics\n')
            w.write(f'Total_entries: {number_inputs}\n')
-           w.write(f'Entries_with_resolution_less_then_2: {total_2}\n')
+           w.write(f'Entries_with_resolution_less_(and_equal)_then_2: {total_2}\n')
            w.write(f'X_RAY_entries: {x_ray1}\n')
            w.write(f'NMR_entries: {NMR1}\n')
            w.write('Statistics_after_homologous_filter\n')
            w.write(f'Total_entries_after_homologous_filter: {Total_entries_after_homologous_filter}\n')
-           w.write(f'Entries_with_resolution_less_then_2: {high_resolution}\n')
+           w.write(f'Entries_with_resolution_less_(and_equal)_then_2: {high_resolution}\n')
            x_ray=base_list.count('X-RAY DIFFRACTION\n')
            NMR=base_list.count('NMR\n')
            w.write(f'X_RAY_entries: {x_ray}\n')

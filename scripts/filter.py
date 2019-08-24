@@ -74,9 +74,9 @@ def main(args):
        experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+\w)\s+", struct.pdb_text).group(1)
     except:
        experiment='NMR'
-    print(f'{args.input}: {experiment}')
+    #print(f'{args.input}: {experiment}')
     permition=filter(model_name,resolution,header,experiment)
-    print(f'entries have been viewd: {permition[0]}, entries have been selected: {permition[1]}, entries with X-RAY: {permition[2]}, entries with NMR: {permition[3]}, entries with resolution > 2: {permition[4]}')
+    #print(f'entries have been viewed: {permition[0]}, entries have been selected: {permition[1]}, entries with X-RAY: {permition[2]}, entries with NMR: {permition[3]}, entries with resolution > 2: {permition[4]}')
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
