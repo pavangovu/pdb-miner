@@ -7,6 +7,7 @@
 
 import os
 
+
 # try:
 # 	[os.makedirs(f'data/structures/{i}_struct') for i in ['BR', 'CL', 'F', 'I']]
 # except:
@@ -21,7 +22,10 @@ rule fetch_structures:
 	input: "data/pdb_ID/pdb_entries_{halide}.txt"
 	output: protected(directory('data/structures/{halide}_struct'))
 	priority: 100
-	shell: 'while read i; do python scripts/fetch_pdb.py -pdb_id $i -output {output} -format pdb; done < {input}'
+	shell: 
+		'while read i; do python scripts/fetch_pdb.py -pdb_id $i -output {output} -format pdb &>/dev/null; done < {input} | '
+		'echo "==============" |'
+		'echo "Structures were obtained.'
 
 rule filter:
 	input: "data/structures/{halide}_struct"
