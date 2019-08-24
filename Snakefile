@@ -23,9 +23,11 @@ rule fetch_structures:
 	output: protected(directory('data/structures/{halide}_struct'))
 	priority: 100
 	shell: 
-		'while read i; do python scripts/fetch_pdb.py -pdb_id $i -output {output} -format pdb &>/dev/null; done < {input} | '
-		'echo "==============" |'
-		'echo "Structures were obtained.'
+		'''
+		while read i; do python scripts/fetch_pdb.py -pdb_id $i -output {output} -format pdb &>/dev/null; done < {input}
+		echo "=============="
+		echo "Structures were obtained.
+		'''
 
 rule filter:
 	input: "data/structures/{halide}_struct"
