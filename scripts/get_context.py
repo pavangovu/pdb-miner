@@ -314,7 +314,7 @@ def main(args):
            w.write(f'NMR_entries: {NMR1}\n')
            w.write('Statistics_after_homologous_filter\n')
            w.write(f'Total_entries_after_homologous_filter: {Total_entries_after_homologous_filter}\n')
-           w.write(f'Entries_with_resolution_more_then_2: {high_resolution}\n')
+           w.write(f'Entries_with_resolution_less_then_2: {high_resolution}\n')
            x_ray=base_list.count('X-RAY DIFFRACTION\n')
            NMR=base_list.count('NMR\n')
            w.write(f'X_RAY_entries: {x_ray}\n')
