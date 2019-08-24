@@ -309,7 +309,7 @@ def main(args):
            Total_entries_after_homologous_filter=int(len(base_list)/4)
            w.write('Total_statistics\n')
            w.write(f'Total_entries: {number_inputs}\n')
-           w.write(f'Entries_with_resolution_more_then_2: {total_2}\n')
+           w.write(f'Entries_with_resolution_less_then_2: {total_2}\n')
            w.write(f'X_RAY_entries: {x_ray1}\n')
            w.write(f'NMR_entries: {NMR1}\n')
            w.write('Statistics_after_homologous_filter\n')
