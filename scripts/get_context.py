@@ -80,6 +80,8 @@ def main(args):
    base_list=[i for i in base_list if i !='']
    # print (base_list)
    high_resolution=0
+   x_ray=base_list.count('X-RAY DIFFRACTION\n')
+   NMR=base_list.count('NMR\n')
    for i in range(2,len(base_list),4): 
     if (float(base_list[i-1])<=2):
      high_resolution+=1
@@ -312,6 +314,8 @@ def main(args):
            w.write(f'Entries_with_resolution_less_(and_equal)_then_2: {total_2}\n')
            w.write(f'X_RAY_entries: {x_ray1}\n')
            w.write(f'NMR_entries: {NMR1}\n')
+           Other_entries=int(number_inputs)-int(x_ray1)-int(NMR1)
+           w.write(f'Other_entries: {Other_entries}\n')
            w.write('Statistics_after_homologous_filter\n')
            w.write(f'Total_entries_after_homologous_filter: {Total_entries_after_homologous_filter}\n')
            w.write(f'Entries_with_resolution_less_(and_equal)_then_2: {high_resolution}\n')
@@ -319,6 +323,8 @@ def main(args):
            NMR=base_list.count('NMR\n')
            w.write(f'X_RAY_entries: {x_ray}\n')
            w.write(f'NMR_entries: {NMR}\n')
+           Other_entries1=int(Total_entries_after_homologous_filter)-int(x_ray)-int(NMR)
+           w.write(f'Other_entries: {Other_entries1}\n')
            w.write(f'Total_sites: {all_sites}\n')
            w.write(f'Total_site_deleted: {all_site_deleted}\n')
            w.write(f'Protein_sites: {all_number_PROTEIN_sites}\n')
