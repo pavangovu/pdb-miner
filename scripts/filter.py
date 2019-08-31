@@ -44,7 +44,7 @@ def filter(model_name,resolution,header,experiment):
 
 def main(args):
 
-   
+  try:   
     if args.input_type == 'pdb_id':
 
       try:
@@ -58,7 +58,8 @@ def main(args):
         struct = PandasPdb()
         struct = struct.read_pdb(args.input)
         model_name = re.search('[\d\w]+$', struct.header).group()
-        
+  except:
+    sys.exit()
     
     try:
           resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
