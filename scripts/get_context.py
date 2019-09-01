@@ -159,7 +159,7 @@ def main(args):
                               line = '\n'.join(f1)
                               pdb.write(line)
 
-                    out=subprocess.Popen(["freesasa", "../pdb_one_halide.txt", "-H", "--select", f'asa, symbol {halide_type}'],
+                    out=subprocess.Popen(["freesasa-2.0.3/src/freesasa", "../pdb_one_halide.txt", "-H", "--select", f'asa, symbol {halide_type}'],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT,
                                        encoding='utf-8')
@@ -243,7 +243,7 @@ def main(args):
                     if  site_filter_dist(N,modern_subset1['dist'],sites):
                          
                          site_deleted+=1
-                         print(f'{halide_type} atom is skipped, similar haligen site around 5A have already been got')
+                         # print(f'{halide_type} atom is skipped, similar haligen site around 5A have already been got')
                          
                          continue
 

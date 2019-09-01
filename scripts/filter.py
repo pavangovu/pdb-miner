@@ -44,40 +44,40 @@ def filter(model_name,resolution,header,experiment):
 
 def main(args):
 
-  try:   
-    if args.input_type == 'pdb_id':
+  # try:   
+  if args.input_type == 'pdb_id':
 
-      try:
-        struct = PandasPdb().fetch_pdb(args.input)
-        model_name = args.input
-      except:
-        sys.exit()
-        
-    elif args.input_type == 'structure':
+    try:
+      struct = PandasPdb().fetch_pdb(args.input)
+      model_name = args.input
+    except:
+      sys.exit()
+      
+  elif args.input_type == 'structure':
 
-        struct = PandasPdb()
-        struct = struct.read_pdb(args.input)
-        model_name = re.search('[\d\w]+$', struct.header).group()
+      struct = PandasPdb()
+      struct = struct.read_pdb(args.input)
+      model_name = re.search('[\d\w]+$', struct.header).group()
+  # except:
+  #   sys.exit()
+    
+  try:
+        resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
   except:
-    sys.exit()
-    
-    try:
-          resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
-    except:
-          resolution = 100
-    
-    
-    try:
-         header=re.search("COMPND\s+2\s+MOLECULE\:\s+(.+)\S+", struct.pdb_text).group(1)
-    except:
-         header=model_name
-    try:
-       experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+\w)\s+", struct.pdb_text).group(1)
-    except:
-       experiment='NMR'
-    #print(f'{args.input}: {experiment}')
-    permition=filter(model_name,resolution,header,experiment)
-    #print(f'entries have been viewed: {permition[0]}, entries have been selected: {permition[1]}, entries with X-RAY: {permition[2]}, entries with NMR: {permition[3]}, entries with resolution > 2: {permition[4]}')
+        resolution = 100
+  
+  
+  try:
+       header=re.search("COMPND\s+2\s+MOLECULE\:\s+(.+)\S+", struct.pdb_text).group(1)
+  except:
+       header=model_name
+  try:
+     experiment =re.search("REMARK\s+\d+\s+EXPERIMENT TYPE\s+\:\s+(.+\w)\s+", struct.pdb_text).group(1)
+  except:
+     experiment='NMR'
+  #print(f'{args.input}: {experiment}')
+  permition=filter(model_name,resolution,header,experiment)
+  #print(f'entries have been viewed: {permition[0]}, entries have been selected: {permition[1]}, entries with X-RAY: {permition[2]}, entries with NMR: {permition[3]}, entries with resolution > 2: {permition[4]}')
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(
