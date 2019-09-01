@@ -105,7 +105,7 @@ df %>% group_by(halide, residue_aa) %>%
   geom_point(aes(col=residue_aa, size=desc(id)), alpha=0.5, show.legend = F)+
   gghighlight(id<6, label_key = residue_aa, unhighlighted_colour = ggplot2::alpha("grey", 0.1), use_direct_label = F, use_group_by = F)+
   geom_label_repel(aes(label=residue_aa, col=residue_aa), show.legend = F)+
-  scale_color_manual(values = wes_palette(n = 8, 'GrandBudapest1', type = 'continuous'))+
+  scale_color_manual(values = wes_palette(n = 12, 'GrandBudapest1', type = 'continuous'))+
   facet_wrap(~halide)+
   scale_x_continuous('Average distance of amino acids')+
   scale_y_continuous('Average angle of amino acids')+

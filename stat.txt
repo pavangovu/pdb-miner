@@ -78,3 +78,83 @@ DNA_sites: 0
 RNA_sites: 0
 Other_sites: 0
 
+Halide: CL
+Total_statistics
+Total_entries: 20
+Entries_with_resolution_less_(and_equal)_then_2: 13
+X_RAY_entries: 20
+NMR_entries: 0
+Other_entries: 0
+Statistics_after_homologous_filter
+Total_entries_after_homologous_filter: 20
+Entries_with_resolution_less_(and_equal)_then_2: 13
+X_RAY_entries: 0
+NMR_entries: 0
+Other_entries: 20
+Total_sites: 41
+Total_site_deleted: 17
+Protein_sites: 24
+DNA_sites: 0
+RNA_sites: 0
+Other_sites: 0
+
+Halide: BR
+Total_statistics
+Total_entries: 20
+Entries_with_resolution_less_(and_equal)_then_2: 13
+X_RAY_entries: 20
+NMR_entries: 0
+Other_entries: 0
+Statistics_after_homologous_filter
+Total_entries_after_homologous_filter: 19
+Entries_with_resolution_less_(and_equal)_then_2: 12
+X_RAY_entries: 0
+NMR_entries: 0
+Other_entries: 19
+Total_sites: 45
+Total_site_deleted: 16
+Protein_sites: 29
+DNA_sites: 0
+RNA_sites: 0
+Other_sites: 0
+
+Halide: I
+Total_statistics
+Total_entries: 20
+Entries_with_resolution_less_(and_equal)_then_2: 8
+X_RAY_entries: 20
+NMR_entries: 0
+Other_entries: 0
+Statistics_after_homologous_filter
+Total_entries_after_homologous_filter: 19
+Entries_with_resolution_less_(and_equal)_then_2: 8
+X_RAY_entries: 0
+NMR_entries: 0
+Other_entries: 19
+Total_sites: 107
+Total_site_deleted: 75
+Protein_sites: 32
+DNA_sites: 0
+RNA_sites: 0
+Other_sites: 0
+
+Halide: F
+Total_statistics
+Total_entries: 20
+Entries_with_resolution_less_(and_equal)_then_2: 13
+X_RAY_entries: 20
+NMR_entries: 0
+Other_entries: 0
+Statistics_after_homologous_filter
+Total_entries_after_homologous_filter: 18
+Entries_with_resolution_less_(and_equal)_then_2: 12
+X_RAY_entries: 0
+NMR_entries: 0
+Other_entries: 18
+Total_sites: 25
+Total_site_deleted: 9
+Protein_sites: 16
+DNA_sites: 0
+RNA_sites: 0
+Other_sites: 0
+
