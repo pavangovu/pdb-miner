@@ -1,7 +1,7 @@
 
 
 rule all:
-	input: directory('plots/')
+	input: 'plots/'
 	output: touch('.status')
 
 
