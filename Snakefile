@@ -11,7 +11,7 @@ rule fetch_structures:
 	priority: 100
 	shell: 
 		'''
-		while read i; do python scripts/fetch_pdb.py -pdb_id $i -output {output} -format pdb &>/dev/null; done < {input}
+		
 		i=$(echo {input})
 		echo "=============="
 		echo "$i: $(cat {input} | wc -l) structures were obtained."
@@ -34,7 +34,7 @@ rule get_context_data:
 		filter='data/filtered_pdb_ID/filtered_{halide}.txt'
 	output: directory('data/context/{halide}_context')
 	threads: 4
-	shell: "python scripts/get_context.py -input_struct {input.struct} -input_filter {input.filter} -input_type structure -angstrem_radius 5 -output {output} -C 2"
+	shell: "python scripts/get_context.py -input_struct {input.struct} -input_filter {input.filter} -input_type structure -angstrem_radius 5 -output {output} -C 2 -input_ligands y"
 
 
 rule combine_final_data:
