@@ -359,7 +359,7 @@ if __name__=='__main__':
 #                         help='Path to input file.')
                         help='PDB id or PDB structure in .ent format.')
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
-    parser.add_argument('-input_ligands', type=str, help='y-yes ligands; n- no ligands'))
+    parser.add_argument('-input_ligands', type=str, help='y-yes ligands; n- no ligands')
     # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
     parser.add_argument('-angstrem_radius', type=int, default=5, help='Threshold radius in Å.')
     parser.add_argument('-output', type=str, 
