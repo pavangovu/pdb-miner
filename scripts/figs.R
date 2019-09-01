@@ -7,7 +7,6 @@ library(wesanderson)
 library(scatterplot3d)
 
 
-
 args = commandArgs(trailingOnly=TRUE)
 # test if there is at least one argument: if not, return an error
 if (length(args)==0) {
@@ -96,24 +95,45 @@ df %>% group_by(halide, model_name, id) %>% summarise(count=n(), asa=mean(asa)) 
 dev.off()
 
 # freq
-png(filename = paste0(args[2], 'most_frequent_AA.png'))
-df %>% group_by(halide, residue_aa) %>%
+d <- df %>% group_by(halide, residue_aa) %>%
   summarise(n = n(), mean_dist=mean(distance), mean_angle=mean(angle)) %>%
   mutate(n=n/first(n)) %>% arrange(desc(n), halide) %>%
-  arrange(halide, desc(n)) %>% mutate(id=row_number()) %>%
-  ggplot(aes(mean_dist, mean_angle))+
-  geom_point(aes(col=residue_aa, size=desc(id)), alpha=0.5, show.legend = F)+
-  gghighlight(id<6, label_key = residue_aa, unhighlighted_colour = ggplot2::alpha("grey", 0.1), use_direct_label = F, use_group_by = F)+
-  geom_label_repel(aes(label=residue_aa, col=residue_aa), show.legend = F)+
-  scale_color_manual(values = wes_palette(n = 12, 'GrandBudapest1', type = 'continuous'))+
+  arrange(halide, desc(n)) %>% mutate(id=row_number())
+
+d5 <- d %>% top_n(n=5, wt=n)
+
+png(filename = paste0(args[2], 'most_frequent_AA.png'))
+d %>% ggplot(aes(mean_dist, mean_angle))+
+  geom_point(col='gray', size=3, alpha=0.5, show.legend = F)+
   facet_wrap(~halide)+
+  geom_point(data = d5, aes(col=residue_aa), size=5, alpha=0.8)+
+  geom_label_repel(data=d5, aes(label=residue_aa, col=residue_aa), show.legend = F)+
+  scale_color_manual('', values = wes_palette(n = 20, 'GrandBudapest1', type = 'continuous'))+
   scale_x_continuous('Average distance of amino acids')+
   scale_y_continuous('Average angle of amino acids')+
   theme_bw()+
   theme(strip.background =element_rect(fill="indianred4"))+
-  theme(strip.text = element_text(colour = 'white'))+
-  theme(legend.position = "none",
-        panel.grid = element_blank())
+  theme(strip.text = element_text(colour = 'white'))
+dev.off()
+
+d <- df %>% group_by(halide, residue_aa, atom_name) %>% summarise(n = n(), mean_dist=mean(distance), mean_angle=mean(angle)) %>% 
+  mutate(atom = paste0(atom_name, '(', residue_aa, ')')) %>% ungroup() %>% select(halide, atom, mean_dist, mean_angle, n) %>% 
+  mutate(n=n/first(n)) %>% arrange(desc(n), halide) %>% arrange(halide, desc(n)) %>% mutate(id=row_number()) %>% 
+  group_by(halide)
+d5 <- d %>% top_n(n = 5, wt = n)
+
+png(filename = paste0(args[2], 'most_frequent_ATOM.png'))
+d %>% ggplot(aes(mean_dist, mean_angle))+
+  geom_point(col='gray', size=3, alpha=0.5, show.legend = F)+
+  facet_wrap(~halide)+
+  geom_point(data = d5, aes(col=atom), size=5, alpha=0.8)+
+  geom_label_repel(data=d5, aes(label=atom, col=atom), show.legend = F)+
+  scale_color_manual('', values = wes_palette(n = 20, 'GrandBudapest1', type = 'continuous'))+
+  scale_x_continuous('Average distance of amino acids')+
+  scale_y_continuous('Average angle of amino acids')+
+  theme_bw()+
+  theme(strip.background =element_rect(fill="indianred4"))+
+  theme(strip.text = element_text(colour = 'white'))
 dev.off()
 
 # distance distrib
