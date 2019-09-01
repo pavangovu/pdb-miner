@@ -99,7 +99,7 @@ def main(args):
        for k in range(len(f)):
              if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
                        f[k]=''
-           
+       struct = struct.read_pdb('current_pdb.txt')    
 
       elif args.input_type == 'structure':
         struct = PandasPdb()
@@ -114,6 +114,10 @@ def main(args):
         for k in range(len(f)):
               if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
                       f[k]=''
+        with open('current_pdb.txt', 'w') as w:
+                 line = '\n'.join(f)
+                 w.write(line)
+        struct = struct.read_pdb('current_pdb.txt')
       try:
                   resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
       except:
@@ -127,7 +131,14 @@ def main(args):
 
       halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
        
-      modern_df=struct.df['ATOM'] # make the subset 
+      if args.ligands=='y':
+          ligand_atoms=struct.df['HETATM']
+          protein_atoms=struct.df['ATOM'] # make the subset
+          modern_df=pd.concat([protein_atoms,ligand_atoms], axis=0)
+          modern_df.index = np.arange(len(modern_df))
+      elif args.ligands=='n':
+          modern_df=struct.df['ATOM'] 
+       
       dict_of_subsets = {}
       S=0 # halide counter for using freesasa
       sites=pd.DataFrame()
@@ -233,7 +244,12 @@ def main(args):
                     modern_subset1['angles']=ang(Coordinate) # add angles to subset
                     modern_subset1['Type_ligands']=Type_ligands(modern_subset)
                     modern_subset1.index = np.arange(len(modern_subset1))
-
+                    modern_subset2=modern_subset1.loc[~modern_subset1['Type_ligands'].isin(['MOLECULE'])]
+                    modern_subset2.index = np.arange(len(modern_subset2))
+                    if len(modern_subset2[modern_subset2.dist<5])==0:
+                                N-=1
+                                site_deleted+=1
+                                continue
                     sites_dist[f'dist_{N}']=modern_subset1['dist']
   
                     sites_dist_sort= sites_dist.sort_values(f'dist_{N}')
