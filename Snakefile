@@ -1,7 +1,7 @@
 
 
 rule all:
-	input: "full_data.tsv"
+	input: directory('plots/')
 	output: touch('.status')
 
 
@@ -41,4 +41,11 @@ rule combine_final_data:
 	input:	expand("data/context/{halide}_context", halide=['BR', 'CL', 'F', 'I'])
 	output: "full_data.tsv"
 	shell: 'python scripts/parse_context.py -f {input} -input data/context/\*/\* -output {output}'
+
+
+rule figures_plotting:
+	input: "full_data.tsv"
+	output: directory('plots/')
+	shell: 'Rscript --vanilla scripts/figs.R {input} {output} &>/dev/null'
+
 
