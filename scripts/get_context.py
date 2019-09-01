@@ -134,12 +134,12 @@ def main(args):
 
       halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
        
-      if args.ligands=='y':
+      if args.input_ligands=='y':
           ligand_atoms=struct.df['HETATM']
           protein_atoms=struct.df['ATOM'] # make the subset
           modern_df=pd.concat([protein_atoms,ligand_atoms], axis=0)
           modern_df.index = np.arange(len(modern_df))
-      elif args.ligands=='n':
+      elif args.input_ligands=='n':
           modern_df=struct.df['ATOM'] 
        
       dict_of_subsets = {}
@@ -359,6 +359,7 @@ if __name__=='__main__':
 #                         help='Path to input file.')
                         help='PDB id or PDB structure in .ent format.')
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
+    parser.add_argument('-input_ligands', type=str, help='y-yes ligands; n- no ligands'))
     # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
     parser.add_argument('-angstrem_radius', type=int, default=5, help='Threshold radius in Å.')
     parser.add_argument('-output', type=str, 
