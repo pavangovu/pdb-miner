@@ -99,6 +99,9 @@ def main(args):
        for k in range(len(f)):
              if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
                        f[k]=''
+       with open('current_pdb.txt', 'w') as w:
+                      line = '\n'.join(f)
+                      w.write(line)
        struct = struct.read_pdb('current_pdb.txt')    
 
       elif args.input_type == 'structure':
