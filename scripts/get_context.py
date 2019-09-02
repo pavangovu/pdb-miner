@@ -247,19 +247,19 @@ def main(args):
                     modern_subset1['angles']=ang(Coordinate) # add angles to subset
                     modern_subset1['Type_ligands']=Type_ligands(modern_subset)
                     modern_subset1.index = np.arange(len(modern_subset1))
-                    modern_subset2=modern_subset1.loc[~modern_subset1['Type_ligands'].isin(['MOLECULE'])]
-                    modern_subset2.index = np.arange(len(modern_subset2))
-                    if len(modern_subset2[modern_subset2.dist<5])==0:
+                    modern_subset3=modern_subset1.loc[~modern_subset1['Type_ligands'].isin(['MOLECULE'])]
+                    modern_subset3.index = np.arange(len(modern_subset3))
+                    if len(modern_subset3[modern_subset3.dist<5])==0:
                                 N-=1
                                 site_deleted+=1
                                 continue
-                    sites_dist[f'dist_{N}']=modern_subset1['dist']
+                    sites_dist[f'dist_{N}']=modern_subset3['dist']
   
                     sites_dist_sort= sites_dist.sort_values(f'dist_{N}')
                     sites_dist_sort.index = np.arange(len(sites_dist_sort))
                     sites=pd.concat([sites,sites_dist_sort], axis=1)
                     
-                    if  site_filter_dist(N,modern_subset1['dist'],sites):
+                    if  site_filter_dist(N,modern_subset3['dist'],sites):
                          
                          site_deleted+=1
                          # print(f'{halide_type} atom is skipped, similar haligen site around 5A have already been got')
