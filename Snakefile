@@ -7,11 +7,11 @@ rule all:
 
 rule fetch_structures:
 	input: "data/pdb_ID/pdb_entries_{halide}.txt"
-	output: protected(directory('data/structures/{halide}_struct'))
+	output: directory('data/structures/{halide}_struct')
 	priority: 100
 	shell: 
 		'''
-		
+		while read i; do python scripts/fetch_structures.py -pdb_id $i -output {output} &>/dev/null; done < {input}
 		i=$(echo {input})
 		echo "=============="
 		echo "$i: $(cat {input} | wc -l) structures were obtained."
