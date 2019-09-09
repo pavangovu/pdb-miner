@@ -267,18 +267,40 @@ def main(args):
                          continue
 
                     modern_subset_exit=modern_subset1[modern_subset1.dist < args.angstrem_radius]
-                    if 'DNA' in modern_subset_exit.values:
+                    if args.prot== 'n':
+                       if 'DNA' in modern_subset_exit.values:
                          number_DNA_sites+=1
-                    elif 'RNA' in modern_subset_exit.values:
+                         
+                       elif 'RNA' in modern_subset_exit.values:
                          number_RNA_sites+=1
-                    elif 'MOLECULE' in modern_subset_exit.values:
+                         
+                       elif 'MOLECULE' in modern_subset_exit.values:
                          number_OTHER_sites+=1
-                    else:
+                       else:
                          number_PROTEIN_sites+=1
-                    #modern_subset1=modern_subset1.loc[modern_subset1['angles'] != 0] # delete rows  with angles=0
-                    #{nearest[0]}:{nearest[1]}:{"%.3f"% nearest[6]}:{np.nan}
-                    dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{nearest[5]}'] =\
-                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
+                       site_count= len(modern_subset_exit.groupby('chain_id').size())
+                    elif args.prot== 'y':
+                       if 'DNA' in modern_subset_exit.values:
+                         number_DNA_sites+=1
+                         site_deleted+=1
+                         continue
+                       elif 'RNA' in modern_subset_exit.values:
+                         number_RNA_sites+=1
+                         site_deleted+=1
+                         continue
+                       elif 'MOLECULE' in modern_subset_exit.values:
+                         number_OTHER_sites+=1
+                         site_deleted+=1
+                         continue
+                       else:
+                         number_PROTEIN_sites+=1
+                       site_count= len(modern_subset_exit.groupby('chain_id').size())
+                    if args.full=='y':
+                       dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{i[1]}:{site_count}'] =\
+                       [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
+                    elif args.full=='n':
+                       dict_of_subsets[f'{model_name}:{i[3]}:{i[1]}:{site_count}'] =\
+                       [(f'{j[5]}') for j in modern_subset_exit.values]
       #print(f'get {len(halide_atoms)} {halide_type} sites, {site_deleted} sites were deleted. In selected sites - protein sites: {number_PROTEIN_sites}, DNA sites: {number_DNA_sites}, RNA sites: {number_RNA_sites}, other sites: {number_OTHER_sites}')
       all_sites+=len(halide_atoms)
       all_site_deleted+=site_deleted
@@ -359,7 +381,7 @@ if __name__=='__main__':
 #                         help='Path to input file.')
                         help='PDB id or PDB structure in .ent format.')
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
-    parser.add_argument('-input_ligands', type=str, help='y-yes ligands; n- no ligands')
+    parser.add_argument('-input_ligands', type=str, help='y-use ligands in processing; n- no ligands')
     # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
     parser.add_argument('-angstrem_radius', type=int, default=5, help='Threshold radius in Å.')
     parser.add_argument('-output', type=str, 
@@ -367,6 +389,8 @@ if __name__=='__main__':
     # parser.add_argument('-output_dir', type=str, 
     #                 help='Name of output dir.')
     parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA')
+    parser.add_argument('-prot', type=str, help='y-only protein sites; n- add DNA,RNA,ligands to result')
+    parser.add_argument('-full', type=str, help='y-full data; n- only amino acids')
     args = parser.parse_args()
 
     main(args)
