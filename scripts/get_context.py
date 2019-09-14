@@ -33,14 +33,36 @@ def ang(Coordinate): # get angles
  
 
 def site_filter_dist(N,modern_subset1,sites):
-   for k in range(0,N):
+  atom_name=0
+  residue_name=0
+  if N>=1:
+   for i in range(N):
+        A=sites.loc[sites[f'dist_{N}']<5, [f'atom_name_{N}']]
+        A=list(A[f'atom_name_{N}'])
+        B=sites.loc[sites[f'dist_{N}']<5, [f'atom_name_{i}']]
+        B=list(B[f'atom_name_{i}'])
+        result=list(set(A) ^ set(B))
+        
+        if len(result)==0:
+           atom_name=1
+   for i in range(N):
+        C=sites.loc[sites[f'dist_{N}']<5, [f'resi_name_{N}']]
+        C=list(C[f'resi_name_{N}'])
+        D=sites.loc[sites[f'dist_{N}']<5, [f'resi_name_{i}']]
+        D=list(D[f'resi_name_{i}'])
+        result=list(set(C) ^ set(D))
+        
+        if len(result)==0:
+          residue_name=1
+   for k in range(0,3*N,3):
     same_degree=0
     stop=sites[f'dist_{N}']<5
+    
     for g in range(len(modern_subset1)):
-     if sites.iloc[g][N]<5:
-      if abs(sites.iloc[g][N]-sites.iloc[g][k])<0.5:
+     if sites.iloc[g][3*N]<5:
+      if abs(sites.iloc[g][3*N]-sites.iloc[g][k])<0.5:
         same_degree+=1
-      if same_degree==stop.sum():
+      if (same_degree==stop.sum()) and (atom_name==1) and (residue_name==1) :
         return True
 
 def  Type_ligands(modern_subset):
@@ -143,6 +165,7 @@ def main(args):
           modern_df=struct.df['ATOM'] 
        
       dict_of_subsets = {}
+      dict_of_subsets1 = {}
       S=0 # halide counter for using freesasa
       sites=pd.DataFrame()
       N=-1 #sites counter for sites filter
@@ -254,7 +277,8 @@ def main(args):
                                 site_deleted+=1
                                 continue
                     sites_dist[f'dist_{N}']=modern_subset3['dist']
-  
+                    sites_dist[f'atom_name_{N}']=modern_subset3['atom_name']
+                    sites_dist[f'resi_name_{N}']=modern_subset3['residue_name']
                     sites_dist_sort= sites_dist.sort_values(f'dist_{N}')
                     sites_dist_sort.index = np.arange(len(sites_dist_sort))
                     sites=pd.concat([sites,sites_dist_sort], axis=1)
@@ -294,13 +318,11 @@ def main(args):
                          continue
                        else:
                          number_PROTEIN_sites+=1
-                       site_count= len(modern_subset_exit.groupby('chain_id').size())
-                    if args.full=='y':
-                       dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{i[1]}:{site_count}'] =\
-                       [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
-                    elif args.full=='n':
-                       dict_of_subsets[f'{model_name}:{i[3]}:{i[1]}:{site_count}'] =\
-                       [(f'{j[5]}') for j in modern_subset_exit.values]
+                    site_count= len(modern_subset_exit.groupby('chain_id').size())
+                    dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{i[1]}:{site_count}'] =\
+                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
+                    dict_of_subsets1[f'{model_name}:{i[3]}:{i[1]}:{site_count}'] =\
+                    [(f'{j[3]}:{j[5]}') for j in modern_subset_exit.values]
       #print(f'get {len(halide_atoms)} {halide_type} sites, {site_deleted} sites were deleted. In selected sites - protein sites: {number_PROTEIN_sites}, DNA sites: {number_DNA_sites}, RNA sites: {number_RNA_sites}, other sites: {number_OTHER_sites}')
       all_sites+=len(halide_atoms)
       all_site_deleted+=site_deleted
@@ -309,13 +331,7 @@ def main(args):
       all_number_RNA_sites+=number_RNA_sites
       all_number_OTHER_sites+=number_OTHER_sites
 
-      def write_output(sfx):
-          try:
-            os.makedirs(f'data/context/{halide_type}_context')
-          except:
-            pass
-
-          with open(f'{args.output}/{halide_type}_context_{sfx}.tsv', 'a') as w:
+      with open(f'{args.output_dir}/{args.output_file_name}_{sfx}.tsv', 'a') as w:
             for k,v in dict_of_subsets.items():
               w.write(f'{k}\t')
               for i in range(len(v)):
@@ -324,13 +340,17 @@ def main(args):
                 else:
                   w.write(f'{v[i]},')
               w.write('\n')
-
-      if resolution <= 1.5:
-                     write_output('HIGH')
-      elif resolution > 1.5 and resolution < 2.5:
-                     write_output('MODERATE')
-      else:
-                     write_output('LOW')
+      with open(f'{args.output_dir}/{args.output_file_name}_{sfx}_AA.tsv', 'a') as w:
+            for k,v in dict_of_subsets1.items():
+              w.write(f'{k}\t')
+              for i in range(len(v)):
+                if i == len(v)-1:
+                  w.write(f'{v[i]}')
+                else:
+                  w.write(f'{v[i]},')
+              w.write('\n')
+      #if resolution <= 1.5:
+      write_output('HIGH')
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
   #print(f'get {all_sites} {halide_type} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')

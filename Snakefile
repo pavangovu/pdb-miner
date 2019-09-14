@@ -34,7 +34,7 @@ rule get_context_data:
 		filter='data/filtered_pdb_ID/filtered_{halide}.txt'
 	output: directory('data/context/{halide}_context')
 	threads: 4
-	shell: "python scripts/get_context.py -input_struct {input.struct} -input_filter {input.filter} -input_type structure -angstrem_radius 5 -output {output} -C 2 -input_ligands y -prot y -full y"
+	shell: "python scripts/get_context.py -input_struct {input.struct} -input_filter {input.filter} -input_type structure -angstrem_radius 5 -output {output} -C 2 -input_ligands y -prot y"
 
 
 rule combine_final_data:
