@@ -174,51 +174,25 @@ def main(args):
       number_RNA_sites=0
       number_PROTEIN_sites=0
       number_OTHER_sites=0
+      out=subprocess.check_output(["freesasa","--format=pdb", "./current_pdb.txt", "-H"],stderr=subprocess.STDOUT, encoding='utf-8')
+      with open ('current_pdb.txt', 'w') as w:
+           w.write(out)
+      with open('current_pdb.txt','r') as w:
+           g=w.readlines()
       for i in halide_atoms.values:
                     sites_dist=pd.DataFrame()
                     halide_atoms.index=np.arange(len(halide_atoms))
                     Halide_humber= halide_atoms[halide_atoms.index==S].values[0][1]
                     S+=1
                     N+=1
-                    f1=copy.deepcopy(f)
-                    for k in range(len(f1)):
-                                if ((f1[k][0:6]=='HETATM') and (int(f1[k][6:11])!=int(Halide_humber))):
-                                  if (f1[k][77:78]==halide_type) or (f1[k][76:78]==halide_type):
-                                    f1[k]=''
-                    f1=[x for x in f1 if x]
-                    
-
-                    # with open ('pdb_one_halide.txt', 'w') as pdb:
-
-                    with open ('../pdb_one_halide.txt', 'w') as pdb:
-
-                              #print(*f1,file=pdb,sep='\n')
-                              line = '\n'.join(f1)
-                              pdb.write(line)
-
-                    out=subprocess.Popen(["freesasa-2.0.3/src/freesasa", "../pdb_one_halide.txt", "-H", "--select", f'asa, symbol {halide_type}'],
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.STDOUT,
-                                       encoding='utf-8')
-                    res=out.communicate()
-                    if res[1]==None:
-                         asa=re.search("asa\s+\:\s+(\d+\.\d+)", res[0]).group(1)
-                         # print(asa)
-                    else:
-                         asa=np.nan
-                         # print(asa)
+                    for k in range(len(g)):
+                                if ((g[k][0:6]=='HETATM') and (int(g[k][6:11])==int(Halide_humber))):
+                                   asa = float(g[k][60:67])
                    
-                   
-
-
-                    global Coordinate
                     Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
                     dist = struct.distance(xyz=tuple(i[11:14]), records=('ATOM'))
                     modern_df['dist']=dist # add distanse to subset
                     
-
-                    
-
                     if args.C == 1:
 
                            modern_subset =modern_df[modern_df.dist < args.angstrem_radius+0.5] # halide neighbors
