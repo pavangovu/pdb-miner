@@ -305,7 +305,7 @@ def main(args):
       all_number_RNA_sites+=number_RNA_sites
       all_number_OTHER_sites+=number_OTHER_sites
 
-      with open(f'{args.output_dir}/{args.output_file_name}_{sfx}.tsv', 'a') as w:
+      with open(f'{args.output}.tsv', 'a') as w:
             for k,v in dict_of_subsets.items():
               w.write(f'{k}\t')
               for i in range(len(v)):
@@ -314,7 +314,7 @@ def main(args):
                 else:
                   w.write(f'{v[i]},')
               w.write('\n')
-      with open(f'{args.output_dir}/{args.output_file_name}_{sfx}_AA.tsv', 'a') as w:
+      with open(f'{args.output}_AA.tsv', 'a') as w:
             for k,v in dict_of_subsets1.items():
               w.write(f'{k}\t')
               for i in range(len(v)):
@@ -324,7 +324,7 @@ def main(args):
                   w.write(f'{v[i]},')
               w.write('\n')
       #if resolution <= 1.5:
-      write_output('HIGH')
+      #write_output('HIGH')
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
   #print(f'get {all_sites} {halide_type} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')
@@ -380,11 +380,10 @@ if __name__=='__main__':
     parser.add_argument('-angstrem_radius', type=int, default=5, help='Threshold radius in Å.')
     parser.add_argument('-output', type=str, 
                         help='Name of output file (root; suffixes will be put themselves).')
-    # parser.add_argument('-output_dir', type=str, 
-    #                 help='Name of output dir.')
+    parser.add_argument('-output', type=str, 
+                       help='Name of output dir.')
     parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA')
     parser.add_argument('-prot', type=str, help='y-only protein sites; n- add DNA,RNA,ligands to result')
-    parser.add_argument('-full', type=str, help='y-full data; n- only amino acids')
     args = parser.parse_args()
 
     main(args)
