@@ -1,4 +1,5 @@
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(gghighlight)
 library(data.table)
@@ -11,9 +12,9 @@ args = commandArgs(trailingOnly=TRUE)
 # test if there is at least one argument: if not, return an error
 if (length(args)==0) {
   stop("At least one argument must be supplied (input file).n", call.=FALSE)
-} else if (length(args)==1) {
+} else if (length(args)<3) {
   # default output file
-  args[2] = "out.png"
+  args[3] = "out.pdf"
 }
 
 
@@ -24,7 +25,7 @@ df <- df %>% rename(mol_type='4', chain='5') %>%
 
 cols <- c('#EFBC7B', '#FE6367', '#5B1A18', '#D97134')
 
-png(filename = paste0(args[2], 'm_dist_vs_m_angle.png'))
+pdf(file = paste0(args[3], 'm_dist_vs_m_angle.pdf'))
 df %>% group_by(model_name, id, halide) %>% filter(angle>0) %>% summarise(m_dist=mean(distance), m_angle=mean(angle), m_asa=mean(asa)) %>% 
   ggplot(aes(x=m_dist, y=m_angle, z=m_asa, col=halide))+
   geom_point(show.legend = F)+
@@ -37,7 +38,7 @@ df %>% group_by(model_name, id, halide) %>% filter(angle>0) %>% summarise(m_dist
   scale_y_continuous('Average angle')
 dev.off()
 
-png(filename = paste0(args[2], 'asa_per_halide.png'))
+pdf(file = paste0(args[3], 'asa_per_halide.pdf'))
 df %>% group_by(halide, model_name, id) %>% summarise(asa=mean(asa)) %>% 
   ggplot(aes(x=halide, y=asa, fill=halide))+
   geom_violin(adjust=2, show.legend = F)+
@@ -47,7 +48,7 @@ df %>% group_by(halide, model_name, id) %>% summarise(asa=mean(asa)) %>%
   scale_y_continuous('Accessible surface area')
 dev.off()
 
-png(filename = paste0(args[2], 'asa_hist.png'))
+pdf(file = paste0(args[3], 'asa_hist.pdf'))
 df %>% group_by(halide, model_name, id) %>% summarise(asa=mean(asa)) %>% 
   ggplot(aes(asa, fill=halide))+
   geom_histogram(position = 'dodge', bins = 20, show.legend = T)+
@@ -57,7 +58,7 @@ df %>% group_by(halide, model_name, id) %>% summarise(asa=mean(asa)) %>%
   scale_y_continuous('Count')
 dev.off()
 
-png(filename = paste0(args[2], 'asa_distriburion.png'))
+pdf(file = paste0(args[3], 'asa_distriburion.pdf'))
 df %>% group_by(halide, model_name, id) %>% summarise(asa=mean(asa)) %>% 
   ggplot(aes(asa, fill=halide))+
   geom_density(position = 'stack', alpha=0.5)+
@@ -68,7 +69,7 @@ df %>% group_by(halide, model_name, id) %>% summarise(asa=mean(asa)) %>%
   xlim(0,100)
 dev.off()
 
-png(filename = paste0(args[2], 'average_asa_per_halide.png'))
+pdf(file = paste0(args[3], 'average_asa_per_halide.pdf'))
 df %>% group_by(halide, model_name, id) %>% summarise(count=n(), asa=mean(asa)) %>% ungroup() %>% group_by(halide) %>% 
   summarise(mean_asa=mean(asa), se_asa=sd(asa)/sqrt(length(asa))) %>% 
   ggplot(aes(x=halide, y=mean_asa, fill=halide))+
@@ -80,7 +81,7 @@ df %>% group_by(halide, model_name, id) %>% summarise(count=n(), asa=mean(asa)) 
   scale_y_continuous('Average accessible surface area')
 dev.off()
 
-png(filename = paste0(args[2], 'asa_vs_coordination_number.png'))
+pdf(file = paste0(args[3], 'asa_vs_coordination_number.pdf'))
 df %>% group_by(halide, model_name, id) %>% summarise(count=n(), asa=mean(asa)) %>% 
   ggplot(aes(x=asa, y=count, fill=halide, col=halide))+
   geom_point(show.legend = F)+
@@ -102,7 +103,7 @@ d <- df %>% group_by(halide, residue_aa) %>%
 
 d5 <- d %>% top_n(n=5, wt=n)
 
-png(filename = paste0(args[2], 'most_frequent_AA.png'))
+pdf(file = paste0(args[3], 'most_frequent_AA.pdf'))
 d %>% ggplot(aes(mean_dist, mean_angle))+
   geom_point(col='gray', size=3, alpha=0.5, show.legend = F)+
   facet_wrap(~halide)+
@@ -122,7 +123,7 @@ d <- df %>% group_by(halide, residue_aa, atom_name) %>% summarise(n = n(), mean_
   group_by(halide)
 d5 <- d %>% top_n(n = 5, wt = n)
 
-png(filename = paste0(args[2], 'most_frequent_ATOM.png'))
+pdf(file = paste0(args[3], 'most_frequent_ATOM.pdf'))
 d %>% ggplot(aes(mean_dist, mean_angle))+
   geom_point(col='gray', size=3, alpha=0.5, show.legend = F)+
   facet_wrap(~halide)+
@@ -137,7 +138,7 @@ d %>% ggplot(aes(mean_dist, mean_angle))+
 dev.off()
 
 # distance distrib
-png(filename = paste0(args[2], 'average_distance_per_halide.png'))
+pdf(file = paste0(args[3], 'average_distance_per_halide.pdf'))
 df %>% group_by(halide) %>% summarise(mean_dist=mean(distance), sd_dist = sd(distance), se_dist = sd(distance/sqrt(length(distance)))) %>% 
   ggplot(aes(halide, mean_dist, fill=halide))+
   geom_bar(stat='identity', show.legend = F)+
@@ -148,7 +149,7 @@ df %>% group_by(halide) %>% summarise(mean_dist=mean(distance), sd_dist = sd(dis
   theme_minimal()
 dev.off()
 
-png(filename = paste0(args[2], 'average_angle_per_halide.png'))
+pdf(file = paste0(args[3], 'average_angle_per_halide.pdf'))
 df %>% filter(angle>0) %>% group_by(halide) %>% dplyr::summarise(mean_angle=mean(angle), sd_angle = sd(angle), se_angle=sd(angle)/sqrt(length(angle)))%>% 
   ggplot(aes(halide, mean_angle, fill=halide))+
   geom_bar(stat='identity', show.legend = F)+
@@ -159,7 +160,7 @@ df %>% filter(angle>0) %>% group_by(halide) %>% dplyr::summarise(mean_angle=mean
   theme_minimal()
 dev.off()
 
-png(filename = paste0(args[2], 'distance_distribution.png'))
+pdf(file = paste0(args[3], 'distance_distribution.pdf'))
 df %>% 
   ggplot(aes(halide, distance, fill=halide))+
   geom_violin(show.legend = F)+
@@ -170,7 +171,7 @@ df %>%
 dev.off()
 
 # angle distrib
-png(filename = paste0(args[2], 'angle_distribution.png'))
+pdf(file = paste0(args[3], 'angle_distribution.pdf'))
 df %>% filter(angle>0) %>% 
   ggplot(aes(halide, angle, fill=halide))+
   geom_violin(show.legend = F)+
@@ -181,7 +182,7 @@ df %>% filter(angle>0) %>%
 dev.off()
 
 # coord density
-png(filename = paste0(args[2], 'coordination_number_density.png'))
+pdf(file = paste0(args[3], 'coordination_number_density.pdf'))
 df %>% group_by(model_name, halide, id) %>% summarise(N = n()) %>% ungroup() %>% group_by(halide) %>% 
   ggplot(aes(N, fill=halide))+
   geom_density(col='black', alpha=0.5, position = 'stack')+
@@ -194,7 +195,7 @@ df %>% group_by(model_name, halide, id) %>% summarise(N = n()) %>% ungroup() %>%
 dev.off()
 
 # coord hist
-png(filename = paste0(args[2], 'coordination_number_hist.png'))
+pdf(file = paste0(args[3], 'coordination_number_hist.pdf'))
 df %>% group_by(model_name, halide, id) %>% summarise(N = n()) %>% ungroup() %>% group_by(halide) %>% 
   ggplot(aes(N, fill=halide))+
   geom_histogram(col='black', position = 'dodge', bins = 11)+
@@ -208,13 +209,13 @@ df %>% group_by(model_name, halide, id) %>% summarise(N = n()) %>% ungroup() %>%
 dev.off()
 
 # coord hist 2
-png(filename = paste0(args[2], 'coordination_number_hist_2.png'))
+pdf(file = paste0(args[3], 'coordination_number_hist_2.pdf'))
 df %>% group_by(model_name, halide, id) %>% summarise(N = n()) %>% ungroup() %>% group_by(halide) %>% 
   ggplot(aes(N, fill=halide))+
   geom_histogram(col='black', bins = 11)+
   scale_y_continuous('Count')+
   scale_fill_manual('Halide', values = wes_palette(n = 4, 'GrandBudapest1'))+
-  facet_wrap(halide~.)+
+  facet_wrap(halide~., scales = 'free')+
   theme_bw()+
   theme(strip.background = element_rect(fill="indianred4"))+
   theme(strip.text = element_text(colour = 'white'))+
@@ -222,7 +223,7 @@ df %>% group_by(model_name, halide, id) %>% summarise(N = n()) %>% ungroup() %>%
 dev.off()
 
 # coord outlayers
-png(filename = paste0(args[2], 'coordination_number_outlayers.png'))
+pdf(file = paste0(args[3], 'coordination_number_outlayers.pdf'))
 df %>% group_by(model_name, halide, id) %>% summarise(N = n()) %>% ungroup() %>% group_by(halide) %>% 
   ggplot(aes(halide, N, fill=halide))+
   geom_boxplot(show.legend = F)+
@@ -232,7 +233,7 @@ df %>% group_by(model_name, halide, id) %>% summarise(N = n()) %>% ungroup() %>%
   theme_bw()
 dev.off()
 
-png(filename = paste0(args[2], 'distance_vs_angle.png'))
+pdf(file = paste0(args[3], 'distance_vs_angle.pdf'))
 df %>% filter(angle>0) %>% ggplot(aes(distance, angle))+
   stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE)+
   # scale_fill_gradientn('Density', colours = rev(pal))+
@@ -249,7 +250,7 @@ dev.off()
 
 df$code_halide <- unclass(factor(df$halide))
 
-png(filename = paste0(args[2], 'distance_vs_angle_vs_asa.png'))
+pdf(file = paste0(args[3], 'distance_vs_angle_vs_asa.pdf'))
 with(df, 
      scatterplot3d(distance, angle, asa,
                    pch = 16, color = cols[as.numeric(df$code_halide)],
@@ -258,4 +259,39 @@ with(df,
                    zlab = "Accessible surface area", grid = FALSE, box=T))
 legend("right", legend = levels(df$code_halide),
        col =  c('#EFBC7B', '#FE6367', '#5B1A18', '#D97134'), pch = 16)
+dev.off()
+
+
+##############################
+##### AA compositions ########
+##############################
+
+d <- as_data_frame(fread(args[2], header = F))
+head(d)
+d <- d %>% separate(V1, c('model','halide','ID', 'atoms')) %>% group_by(halide, V2) %>% summarise(n=n()) %>%
+  ungroup() %>% group_by(halide) %>% arrange(desc(n)) %>% top_n(n = 20, wt = n)
+# %>% filter(halide!='F')
+sum_d <- d %>% summarise(sum=sum(n))
+d <- as_data_frame(merge(d, sum_d))
+
+sum_d <- d %>% ungroup() %>% group_by(halide) %>% summarise(sum=sum(n), min_n=min(n)/sum)
+
+d <- as_data_frame(merge(d, sum_d))
+
+d_CL <- d %>% dplyr::mutate(N=n/sum) %>% filter(halide=='CL') %>% filter(N>min_n)
+d_BR <- d %>% dplyr::mutate(N=n/sum) %>% filter(halide=='BR') %>% filter(N>min_n)
+d_I <- d %>% dplyr::mutate(N=n/sum) %>% filter(halide=='I') %>% filter(N>min_n)
+
+pdf(file = paste0(args[3], 'compositions.pdf'))
+bind_rows(d_CL, d_BR, d_I) %>% 
+  ggplot(aes(x=V2, y=n/sum, fill=halide))+
+  geom_bar(stat='identity')+
+  # facet_grid(~halide)+
+  theme_minimal()+
+  scale_fill_manual('Halide', values = cols)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  theme(strip.background =element_rect(fill="indianred4"))+
+  theme(strip.text = element_text(colour = 'white'))+
+  scale_x_discrete('Compostition')+
+  scale_y_continuous('Count')
 dev.off()

@@ -65,7 +65,7 @@ def site_filter_dist(N,modern_subset1,sites):
       if (same_degree==stop.sum()) and (atom_name==1) and (residue_name==1) :
         return True
 
-def  Type_ligands(modern_subset):
+def Type_ligands(modern_subset):
    Type_ligands=[]
    Type_atoms_DNA=['DA','DG','DT','DC']
    Type_atoms_RNA=['A','G','C','U']
@@ -84,16 +84,17 @@ def  Type_ligands(modern_subset):
 
 def main(args):
 
-  try:
-    os.makedirs(args.output_dir)
-  except:
-    pass
+  # try:
+    # os.makedirs(args.output_dir)
+  # except:
+  #   pass
   all_sites=0
   all_site_deleted=0
   all_number_PROTEIN_sites=0
   all_number_DNA_sites=0
   all_number_RNA_sites=0
   all_number_OTHER_sites=0
+
   with open(args.input_filter, 'r') as f:
    text=f.readlines()
    base_list=[]
@@ -133,8 +134,8 @@ def main(args):
         # print(f'{args.input}/pdb{base_list[i].lower()}.ent')
         model_name = re.search('[\d\w]+$', struct.header).group()
         with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
-
                       f=pdb1.readlines()
+                      
 
         for k in range(len(f)):
               if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
@@ -305,7 +306,7 @@ def main(args):
       all_number_RNA_sites+=number_RNA_sites
       all_number_OTHER_sites+=number_OTHER_sites
 
-      with open(f'{args.output}.tsv', 'a') as w:
+      with open(f'{args.output_full}', 'a') as w:
             for k,v in dict_of_subsets.items():
               w.write(f'{k}\t')
               for i in range(len(v)):
@@ -314,7 +315,8 @@ def main(args):
                 else:
                   w.write(f'{v[i]},')
               w.write('\n')
-      with open(f'{args.output}_AA.tsv', 'a') as w:
+
+      with open(f'{args.output_AA}', 'a') as w:
             for k,v in dict_of_subsets1.items():
               w.write(f'{k}\t')
               for i in range(len(v)):
@@ -323,8 +325,8 @@ def main(args):
                 else:
                   w.write(f'{v[i]},')
               w.write('\n')
+
       #if resolution <= 1.5:
-      #write_output('HIGH')
       # path=os.path.join(os.path.abspath(os.path.dirname(__file__)), '../pdb_one_halide.txt')
       # os.remove(path)
   #print(f'get {all_sites} {halide_type} sites, {all_site_deleted} sites were deleted, protein sites: {all_number_PROTEIN_sites}, DNA sites: {all_number_DNA_sites}, RNA sites: {all_number_RNA_sites}, other sites: {all_number_OTHER_sites}')
@@ -378,12 +380,15 @@ if __name__=='__main__':
     parser.add_argument('-input_ligands', type=str, help='y-use ligands in processing; n- no ligands')
     # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
     parser.add_argument('-angstrem_radius', type=int, default=5, help='Threshold radius in Å.')
-    parser.add_argument('-output', type=str, 
-                        help='Name of output file (root; suffixes will be put themselves).')
-    parser.add_argument('-output', type=str, 
-                       help='Name of output dir.')
+    parser.add_argument('-output_full', type=str, 
+                        help='Name of output file with full data.')
+    parser.add_argument('-output_AA', type=str, 
+                        help='Name of output file with AA composition ')
+    # parser.add_argument('-output_dir', type=str, 
+    #                 help='Name of output dir.')
     parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA')
     parser.add_argument('-prot', type=str, help='y-only protein sites; n- add DNA,RNA,ligands to result')
+    parser.add_argument('-full', type=str, help='y-full data; n- only amino acids')
     args = parser.parse_args()
 
     main(args)

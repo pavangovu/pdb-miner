@@ -32,20 +32,32 @@ rule get_context_data:
 	input: 
 		struct='data/structures/{halide}_struct',
 		filter='data/filtered_pdb_ID/filtered_{halide}.txt'
-	output: directory('data/context/{halide}_context')
+	output: 
+		one='data/context/{halide}_context.tsv',
+		two='data/context/{halide}_context_AA.tsv'
 	threads: 4
-	shell: "python scripts/get_context.py -input_struct {input.struct} -input_filter {input.filter} -input_type structure -angstrem_radius 5 -output {output} -C 2 -input_ligands y -prot y"
+	shell: "python scripts/get_context.py -input_struct {input.struct} -input_filter {input.filter} -input_type structure -angstrem_radius 5 -output_full {output.one} -output_AA {output.two} -C 2 -input_ligands y -prot y"
 
 
 rule combine_final_data:
-	input:	expand("data/context/{halide}_context", halide=['BR', 'CL', 'F', 'I'])
-	output: "full_data.tsv"
-	shell: 'python scripts/parse_context.py -f {input} -input data/context/\*/\* -output {output}'
+	input:	
+		one=expand("data/context/{halide}_context.tsv", halide=['BR', 'CL', 'F', 'I']),
+		two=expand("data/context/{halide}_context_AA.tsv", halide=['BR', 'CL', 'F', 'I'])
+	output: one="data/full_data.tsv",
+			two="data/full_data_AA.tsv"
+	shell: 
+			'''
+			python scripts/parse_context.py -f {input.one} -input data/context/\*_context.tsv -output {output.one}
+			cat {input.two} > {output.two}
+			'''
 
 
 rule figures_plotting:
-	input: "full_data.tsv"
+	input: 
+		one="data/full_data.tsv",
+		two="data/full_data_AA.tsv"
 	output: directory('plots/')
-	shell: 'Rscript --vanilla scripts/figs.R {input} {output} &>/dev/null'
+	shell: 'Rscript --vanilla scripts/figs.R {input.one} {input.two} {output}'
+	# &>/dev/null
 
 
