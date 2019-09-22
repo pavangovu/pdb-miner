@@ -388,7 +388,6 @@ if __name__=='__main__':
     #                 help='Name of output dir.')
     parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA')
     parser.add_argument('-prot', type=str, help='y-only protein sites; n- add DNA,RNA,ligands to result')
-    parser.add_argument('-full', type=str, help='y-full data; n- only amino acids')
     args = parser.parse_args()
 
     main(args)
