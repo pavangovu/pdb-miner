@@ -8,6 +8,7 @@ import copy
 import itertools
 # import freesasa
 import subprocess
+import math
 
 
 def ang(Coordinate): # get angles
@@ -83,7 +84,10 @@ def Type_ligands(modern_subset):
 
 
 def main(args):
-
+  F_r=4*(1.19+1.4)**2*math.pi
+  CL_r=4*(1.67+1.4)**2*math.pi
+  BR_r=4*(1.82+1.4)**2*math.pi
+  I_r=4*(2.06+1.4)**2*math.pi
   # try:
     # os.makedirs(args.output_dir)
   # except:
@@ -189,6 +193,14 @@ def main(args):
                     for k in range(len(g)):
                                 if ((g[k][0:6]=='HETATM') and (int(g[k][6:11])==int(Halide_humber))):
                                    asa = float(g[k][60:67])
+                                   if args.halide  == 'F':
+                                      asa_r=asa/F_r
+                                   if args.halide == 'CL':
+                                      asa_r=asa/CL_r
+                                   if args.halide == 'BR':
+                                      asa_r=asa/BR_r
+                                   if args.halide == 'I':
+                                      asa_r=asa/I_r
                    
                     Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
                     dist = struct.distance(xyz=tuple(i[11:14]), records=('ATOM'))
@@ -294,7 +306,7 @@ def main(args):
                        else:
                          number_PROTEIN_sites+=1
                     site_count= len(modern_subset_exit.groupby('chain_id').size())
-                    dict_of_subsets[f'{model_name}:{asa}:{resolution}:{i[3]}:{i[1]}:{site_count}'] =\
+                    dict_of_subsets[f'{model_name}:{asa_r}:{resolution}:{i[3]}:{i[1]}:{site_count}'] =\
                     [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
                     dict_of_subsets1[f'{model_name}:{i[3]}:{i[1]}:{site_count}'] =\
                     [(f'{j[3]}:{j[5]}') for j in modern_subset_exit.values]
@@ -356,12 +368,12 @@ def main(args):
            w.write('Statistics_after_homologous_filter\n')
            w.write(f'Total_entries_after_homologous_filter: {Total_entries_after_homologous_filter}\n')
            w.write(f'Entries_with_resolution_less_(and_equal)_then_2: {high_resolution}\n')
-           x_ray=base_list.count('X-RAY DIFFRACTION\n')
-           NMR=base_list.count('NMR\n')
-           w.write(f'X_RAY_entries: {x_ray}\n')
-           w.write(f'NMR_entries: {NMR}\n')
-           Other_entries1=int(Total_entries_after_homologous_filter)-int(x_ray)-int(NMR)
-           w.write(f'Other_entries: {Other_entries1}\n')
+           #x_ray=base_list.count('X-RAY DIFFRACTION\n')
+           #NMR=base_list.count('NMR\n')
+           #w.write(f'X_RAY_entries: {x_ray}\n')
+           #w.write(f'NMR_entries: {NMR}\n')
+           #Other_entries1=int(Total_entries_after_homologous_filter)-int(x_ray)-int(NMR)
+           #w.write(f'Other_entries: {Other_entries1}\n')
            w.write(f'Total_sites: {all_sites}\n')
            w.write(f'Total_site_deleted: {all_site_deleted}\n')
            w.write(f'Protein_sites: {all_number_PROTEIN_sites}\n')
