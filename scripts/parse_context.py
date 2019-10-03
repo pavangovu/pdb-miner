@@ -20,11 +20,14 @@ def main(args):
     resolution = model[2]
     halide = model[3]
     atom_id = model[4]
+    n_chain = model[5]
+
     datka = pd.DataFrame({'model_name': model_name,
                           'asa': asa,
                           'resolution': resolution,
                           'halide': halide,
-                          'id':atom_id})
+                          'id':atom_id,
+							'n_chain':n_chain})
     datka = pd.concat([datka, df[1].str.split(',')], axis=1).rename(index=str,columns={1:'samples'})
     spread_datka = datka.apply(lambda x: pd.Series(x['samples']),axis=1).stack().reset_index(level=1, drop=True)
     spread_datka.name = 'sample'

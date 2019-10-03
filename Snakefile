@@ -57,7 +57,4 @@ rule figures_plotting:
 		one="data/full_data.tsv",
 		two="data/full_data_AA.tsv"
 	output: directory('plots/')
-	shell: 'Rscript --vanilla scripts/figs.R {input.one} {input.two} {output}'
-	# &>/dev/null
-
-
+	shell: 'Rscript --vanilla scripts/figs.R {input.one} {input.two} {output} &>/dev/null'
