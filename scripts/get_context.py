@@ -193,13 +193,13 @@ def main(args):
                     for k in range(len(g)):
                                 if ((g[k][0:6]=='HETATM') and (int(g[k][6:11])==int(Halide_humber))):
                                    asa = float(g[k][60:67])
-                                   if args.halide  == 'F':
+                                   if halide_type  == 'F':
                                       asa_r=asa/F_r
-                                   if args.halide == 'CL':
+                                   if halide_type == 'CL':
                                       asa_r=asa/CL_r
-                                   if args.halide == 'BR':
+                                   if halide_type == 'BR':
                                       asa_r=asa/BR_r
-                                   if args.halide == 'I':
+                                   if halide_type == 'I':
                                       asa_r=asa/I_r
                    
                     Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
