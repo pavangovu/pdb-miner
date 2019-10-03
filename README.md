@@ -28,6 +28,14 @@ snakemake all
 ## DAG of jobs  
 ![alt text](dag.svg)  
 ## Pipeline input  
+Input consist of PDB ID, which separeted by ```\n```:
+```
+3VRS
+2LH5
+6RI4
+5EVC
+...
+```
 You should put the files in the directory ```data/pdb_ID/```, and give them a name according to a strict template ```pdb_entries_X.txt```, where ```X``` is (```F, Cl, Br, I```)
 ## Scripts description  
 1. rule fetch_structures (**fetch_structures.py**) - obtain structures from PDB;  
