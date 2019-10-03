@@ -2,7 +2,7 @@
 ## Dependencies
 You should install it manually: 
 * [Anaconda](https://www.digitalocean.com/community/tutorials/how-to-install-anaconda-on-ubuntu-18-04-quickstart)
-* [Freesasa](https://freesasa.github.io/)  
+* [FreeSASA](https://freesasa.github.io/)  
 ## Preparation  
 Create your conda environment from our smk.yml  
 ```
