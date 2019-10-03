@@ -37,4 +37,4 @@ snakemake all
 5. rule figures_plotting (**figs.R**) - makes graphic report.  
 ## References  
 1. Anaconda Software Distribution. Computer software. Vers. 2-2.4.0. Anaconda, Nov. 2016. Web. <https://anaconda.com>.  
-2. 1. Mitternacht, S. FreeSASA: An open source C library for solvent accessible surface area calculations. F1000Research 5, 189 (2016).  
+2. Mitternacht, S. FreeSASA: An open source C library for solvent accessible surface area calculations. F1000Research 5, 189 (2016).  
