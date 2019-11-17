@@ -1,4 +1,16 @@
-# Halide sites  
+# Halide sites
+## Project availability
+You can clone whole repo by standart command:
+```
+git clone https://github.com/rostkick/Halide_sites.git
+```
+Also if you need to save it **without commit-log** you schould use:
+```
+git clone —depth=1 https://github.com/rostkick/Halide_sites.git
+```
+If you want to save **only one** file (for example without saving example data) you should:
+  1) copy link of favorite file
+  2) go to https://minhaskamal.github.io/DownGit/#/home, paste it, and create Download Link.
 ## Dependencies
 You should install it manually: 
 * [Anaconda](https://www.digitalocean.com/community/tutorials/how-to-install-anaconda-on-ubuntu-18-04-quickstart)
