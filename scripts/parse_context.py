@@ -34,7 +34,7 @@ def main(args):
     datka = datka.drop('samples', axis=1).join(spread_datka)
     datka.index = [i for i in range(0, len(datka))]
     datka = pd.concat([datka, datka['sample'].str.split(':', expand=True).\
-             rename(columns={0:'atom_name', 1:'residue_aa', 2:'distance', 3:'angle'})], axis=1).\
+             rename(columns={0:'atom_name', 1:'residue_aa', 2:'distance', 3:'angle',4:'atom_type',5: 'chain_index', 6: 'secondary_structure'})], axis=1).\
              drop('sample', axis=1)
 
     datka.to_csv(args.output, sep='\t', index=None)

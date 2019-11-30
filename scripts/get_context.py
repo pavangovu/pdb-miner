@@ -1,3 +1,5 @@
+from Bio.PDB import PDBParser
+from Bio.PDB.DSSP import DSSP
 from biopandas.pdb import PandasPdb
 import re
 import os
@@ -66,23 +68,67 @@ def site_filter_dist(N,modern_subset1,sites):
       if (same_degree==stop.sum()) and (atom_name==1) and (residue_name==1) :
         return True
 
-def Type_ligands(modern_subset):
+def  Type_ligands(modern_subset):
    Type_ligands=[]
    Type_atoms_DNA=['DA','DG','DT','DC']
    Type_atoms_RNA=['A','G','C','U']
    for i in modern_subset.values:
-     if  i[0]=='HETATM':
-         Type_ligands+=['MOLECULE']
+     #print(i[5])
+     if  i[0]=='HETATM' and i[5] not in ['HOH','AHOH','BHOH']:
+         Type_ligands += ['MOLECULE']
+     elif i[0]=='HETATM' and i[5]  in ['HOH','AHOH','BHOH']:
+         Type_ligands += ['WATER']
      else:
          if i[5] in Type_atoms_DNA:
-            Type_ligands+=['DNA']
+            Type_ligands += ['DNA']
          elif i[5] in Type_atoms_RNA:
-             Type_ligands+=['RNA']
+             Type_ligands += ['RNA']
          else:
-            Type_ligands+=['PROTEIN']
+            Type_ligands += ['PROTEIN']
+   #print(Type_ligands)
    return(Type_ligands)
 
+def Make_dssp():
+      ref = {
+         	'A' : 'ALA', 
+		'R' : 'ARG',
+		'N' : 'ASN',
+		'D' : 'ASP',
+		'B' : 'ASX',
+		'C' : 'CYS',
+		'E' : 'GLU',
+	 	'Q' : 'GLN',
+		'Z' : 'GLX', 
+	 	'G' : 'GLY', 
+		'H' : 'HIS',
+		'I' : 'ILE',
+	 	'L' : 'LEU', 
+ 		'K' : 'LYS', 
+		'M' : 'MET',
+	 	'F' : 'PHE', 
+	 	'P' : 'PRO',
+	 	'S' : 'SER', 
+	 	'T' : 'THR',
+ 		'W' : 'TRP',
+	 	'Y' : 'TYR', 
+ 	 	'V' : 'VAL',
+                'X' : '---'} 
+      dssp_dict ={}
+      dssp_dict['X'] = np.NaN
+      p = PDBParser()
+      structure = p.get_structure('model', './current_pdb.txt')
+      mod = structure[0]
+      dssp = DSSP(mod, './current_pdb.txt')
+      for i in range(len(dssp)):
+             a_key = list(dssp.keys())[i]
+             dssp_dict[str(a_key[0])+str(a_key[1][1])+str(ref[dssp[a_key][1]])] = dssp[a_key][2]
+      return(dssp_dict)
 
+def water_del(f):
+    for k in range(len(f)):
+             if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
+                       f[k]=''
+    return(f)
 def main(args):
   F_r=4*(1.19+1.4)**2*math.pi
   CL_r=4*(1.67+1.4)**2*math.pi
@@ -114,8 +160,10 @@ def main(args):
      high_resolution+=1
      if(base_list[i+1]!='NMR'):
       if args.input_type == 'pdb_id':
-
-       struct = PandasPdb().fetch_pdb(f'{base_list[i]}')
+       try:
+          struct = PandasPdb().fetch_pdb(f'{base_list[i]}')
+       except:
+          continue
        model_name = args.input
        with open('current_pdb.txt', 'w') as w:
                        w.write(f'{struct.pdb_text}')        
@@ -123,12 +171,11 @@ def main(args):
        # print(model_name)
        with open('current_pdb.txt', 'r') as w:
                        f=w.readlines()
-       for k in range(len(f)):
-             if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
-                       f[k]=''
+       if args.water == 'n':
+          water_del(f)
        with open('current_pdb.txt', 'w') as w:
-                      line = '\n'.join(f)
-                      w.write(line)
+                   line = ''.join(f)
+                   w.write(line)
        struct = struct.read_pdb('current_pdb.txt')    
 
       elif args.input_type == 'structure':
@@ -139,14 +186,11 @@ def main(args):
         model_name = re.search('[\d\w]+$', struct.header).group()
         with open (f'{args.input_struct}/pdb{base_list[i].lower()}.ent', 'r') as pdb1:
                       f=pdb1.readlines()
-                      
-
-        for k in range(len(f)):
-              if (f[k][0:6]=='HETATM') and (f[k][16:20]==' HOH' or f[k][16:20]=='AHOH' or f[k][16:20]=='BHOH'):
-                      f[k]=''
+        if args.water == 'n':              
+           water_del(f)
         with open('current_pdb.txt', 'w') as w:
-                 line = '\n'.join(f)
-                 w.write(line)
+                  line = ''.join(f)
+                  w.write(line)
         struct = struct.read_pdb('current_pdb.txt')
       try:
                   resolution = float(re.search("REMARK\s+2\s+RESOLUTION\.\s+(\d+\.\d+)", struct.pdb_text).group(1))
@@ -157,18 +201,26 @@ def main(args):
        
 
       halide_type = args.input_filter.split('/')[-1].split('_')[-1].split('.')[0]
-        # print(halide_type)
-
       halide_atoms = struct.df['HETATM'][struct.df['HETATM']['atom_name'] == halide_type]
-       
-      if args.input_ligands=='y':
+
+      if args.ligands=='y':
           ligand_atoms=struct.df['HETATM']
           protein_atoms=struct.df['ATOM'] # make the subset
           modern_df=pd.concat([protein_atoms,ligand_atoms], axis=0)
           modern_df.index = np.arange(len(modern_df))
-      elif args.input_ligands=='n':
+  
+      elif args.ligands=='n':
           modern_df=struct.df['ATOM'] 
-       
+   
+      
+      if args.sec_struct == 'y':
+        try:
+          dssp_dict = Make_dssp() # making dssp dict
+        except:
+          dssp_dict = {'X' : np.NaN}
+      else:
+          dssp_dict = {'X' : np.NaN}
+
       dict_of_subsets = {}
       dict_of_subsets1 = {}
       S=0 # halide counter for using freesasa
@@ -179,6 +231,11 @@ def main(args):
       number_RNA_sites=0
       number_PROTEIN_sites=0
       number_OTHER_sites=0
+      if args.water == 'y':
+         water_del(f)
+      with open('current_pdb.txt', 'w') as w:
+                   line = ''.join(f)
+                   w.write(line)
       out=subprocess.check_output(["freesasa","--format=pdb", "./current_pdb.txt", "-H"],stderr=subprocess.STDOUT, encoding='utf-8')
       with open ('current_pdb.txt', 'w') as w:
            w.write(out)
@@ -203,34 +260,40 @@ def main(args):
                                       asa_r=asa/I_r
                    
                     Coordinate=[] # list of coordinates М[0]= halide coordinates М[1] the nearest atom's coordinates
-                    dist = struct.distance(xyz=tuple(i[11:14]), records=('ATOM'))
+                    if args.ligands=='y':
+                     
+                        dist = struct.distance(xyz=tuple(i[11:14]))
+                        dist.index=np.arange(len(dist))
+                    elif args.ligands=='n':
+                        dist = struct.distance(xyz=tuple(i[11:14]), records=('ATOM'))
                     modern_df['dist']=dist # add distanse to subset
                     
                     if args.C == 1:
+                           
 
-                           modern_subset =modern_df[modern_df.dist < args.angstrem_radius+0.5] # halide neighbors
-                
-                    
+                           modern_subset =modern_df[(modern_df.dist < args.angstrem_radius+0.5) & (modern_df.dist!=0)] # halide neighbors
+
+
                     elif args.C == 2:
 
-                           modern_df1=modern_df[modern_df.dist < args.angstrem_radius+0.5]
+                           modern_df1=modern_df[(modern_df.dist < args.angstrem_radius+0.5) & (modern_df.dist!=0)]
                            modern_subset=modern_df1.loc[~modern_df1['element_symbol'].isin(['C','H'])]
 
   
                     elif args.C == 3:
                            
-                           modern_df1 =modern_df[modern_df.dist < args.angstrem_radius+0.5]
+                           modern_df1 =modern_df[(modern_df.dist < args.angstrem_radius+0.5) & (modern_df.dist!=0)]
                            modern_subset=modern_df1.loc[~modern_df1['element_symbol'].isin(['C'])]
 
                     elif args.C == 4:
-                           modern_df1 =modern_df[modern_df.dist < args.angstrem_radius+0.5]
+                           modern_df1 =modern_df[(modern_df.dist < args.angstrem_radius+0.5) & (modern_df.dist!=0)]
                            atoms=list(map("".join,itertools.permutations('BDEGHZ',1)))
                            atoms1=list(map("".join,itertools.permutations('BDEGHZ123',2)))
                            atoms2=atoms+atoms1
                            atom2=['C'+ atom for atom in atoms2] +['O','C']
                            modern_subset=modern_df1.loc[~modern_df1['atom_name'].isin(atom2)]
                     
-                    if len(modern_subset[modern_subset.dist<5])==0:
+                    if len(modern_subset[modern_subset.dist<args.angstrem_radius])==0:
                                 N-=1
                                 site_deleted+=1
                                 continue
@@ -257,9 +320,40 @@ def main(args):
                     modern_subset1['angles']=ang(Coordinate) # add angles to subset
                     modern_subset1['Type_ligands']=Type_ligands(modern_subset)
                     modern_subset1.index = np.arange(len(modern_subset1))
-                    modern_subset3=modern_subset1.loc[~modern_subset1['Type_ligands'].isin(['MOLECULE'])]
+
+                    if args.prot== 'n':
+                       if 'DNA' in modern_subset1.values:
+                         number_DNA_sites+=1
+                         
+                       elif 'RNA' in modern_subset1.values:
+                         number_RNA_sites+=1
+                         
+                       elif 'MOLECULE' in modern_subset1.values:
+                         number_OTHER_sites+=1
+                       else:
+                         number_PROTEIN_sites+=1
+                    elif args.prot== 'y':
+                       if 'DNA' in modern_subset1.values:
+                         number_DNA_sites+=1
+                         site_deleted+=1
+                         N-=1
+                         continue
+                       elif 'RNA' in modern_subset1.values:
+                         number_RNA_sites+=1
+                         site_deleted+=1
+                         N-=1
+                         continue
+                       elif 'MOLECULE' in modern_subset1.values:
+                         number_OTHER_sites+=1
+                         site_deleted+=1
+                         N-=1
+                         continue
+                       else:
+                         number_PROTEIN_sites+=1
+
+                    modern_subset3=modern_subset1.loc[~modern_subset1['Type_ligands'].isin(['MOLECULE','RNA','DNA','WATER'])]
                     modern_subset3.index = np.arange(len(modern_subset3))
-                    if len(modern_subset3[modern_subset3.dist<5])==0:
+                    if len(modern_subset3[modern_subset3.dist<args.angstrem_radius])==0:
                                 N-=1
                                 site_deleted+=1
                                 continue
@@ -276,38 +370,15 @@ def main(args):
                          # print(f'{halide_type} atom is skipped, similar haligen site around 5A have already been got')
                          
                          continue
-
-                    modern_subset_exit=modern_subset1[modern_subset1.dist < args.angstrem_radius]
-                    if args.prot== 'n':
-                       if 'DNA' in modern_subset_exit.values:
-                         number_DNA_sites+=1
-                         
-                       elif 'RNA' in modern_subset_exit.values:
-                         number_RNA_sites+=1
-                         
-                       elif 'MOLECULE' in modern_subset_exit.values:
-                         number_OTHER_sites+=1
-                       else:
-                         number_PROTEIN_sites+=1
-                       site_count= len(modern_subset_exit.groupby('chain_id').size())
-                    elif args.prot== 'y':
-                       if 'DNA' in modern_subset_exit.values:
-                         number_DNA_sites+=1
-                         site_deleted+=1
-                         continue
-                       elif 'RNA' in modern_subset_exit.values:
-                         number_RNA_sites+=1
-                         site_deleted+=1
-                         continue
-                       elif 'MOLECULE' in modern_subset_exit.values:
-                         number_OTHER_sites+=1
-                         site_deleted+=1
-                         continue
-                       else:
-                         number_PROTEIN_sites+=1
-                    site_count= len(modern_subset_exit.groupby('chain_id').size())
+                   
+                    dssp_cod = list(map(lambda x : dssp_dict[x] , [str(modern_subset3.at[x,'chain_id'])+str(modern_subset3.at[x,'residue_number'])+str(modern_subset3.at[x,'residue_name'])  if str(modern_subset3.at[x,'chain_id'])+str(modern_subset3.at[x,'residue_number'])+str(modern_subset3.at[x,'residue_name']) in dssp_dict.keys() else 'X'  for x in range (len(modern_subset3))  ]))
+                    dssp_cod_df = pd.DataFrame({'dssp_cod' : dssp_cod})
+                    modern_subset_exit = pd.concat([ modern_subset1,dssp_cod_df], ignore_index=True, axis=1)
+                    modern_subset_exit = modern_subset_exit[modern_subset_exit[21] < args.angstrem_radius]
+                    site_count= len(modern_subset_exit.groupby(7).size())
+                    print(modern_subset_exit)
                     dict_of_subsets[f'{model_name}:{asa_r}:{resolution}:{i[3]}:{i[1]}:{site_count}'] =\
-                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}') for j in modern_subset_exit.values]
+                    [(f'{j[3]}:{j[5]}:{"%.3f"% j[21]}:{"%.3f"% j[22]}:{j[23]}:{j[7]}:{j[24]}') for j in modern_subset_exit.values]
                     dict_of_subsets1[f'{model_name}:{i[3]}:{i[1]}:{site_count}'] =\
                     [(f'{j[3]}:{j[5]}') for j in modern_subset_exit.values]
       #print(f'get {len(halide_atoms)} {halide_type} sites, {site_deleted} sites were deleted. In selected sites - protein sites: {number_PROTEIN_sites}, DNA sites: {number_DNA_sites}, RNA sites: {number_RNA_sites}, other sites: {number_OTHER_sites}')
@@ -389,7 +460,7 @@ if __name__=='__main__':
 #                         help='Path to input file.')
                         help='PDB id or PDB structure in .ent format.')
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
-    parser.add_argument('-input_ligands', type=str, help='y-use ligands in processing; n- no ligands')
+    
     # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
     parser.add_argument('-angstrem_radius', type=int, default=5, help='Threshold radius in Å.')
     parser.add_argument('-output_full', type=str, 
@@ -398,8 +469,11 @@ if __name__=='__main__':
                         help='Name of output file with AA composition ')
     # parser.add_argument('-output_dir', type=str, 
     #                 help='Name of output dir.')
+    parser.add_argument('-ligands', type=str, help='y-do not ignore HETATM field in processing; n - ignore')
     parser.add_argument('-C', type=int, help='1-all atoms; 2-no C,H atoms; 3 - no C; 4 - no C=0 no C except CA')
     parser.add_argument('-prot', type=str, help='y-only protein sites; n- add DNA,RNA,ligands to result')
+    parser.add_argument('-sec_struct', type=str, help='y - collect secondary scructure; n - do not collect')
+    parser.add_argument('-water', type=str, help='y - collect water; n - do not collect')
     args = parser.parse_args()
 
     main(args)

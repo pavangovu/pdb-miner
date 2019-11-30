@@ -87,9 +87,9 @@ if __name__=='__main__':
                         help='PDB id or PDB structure in .ent format.')
     parser.add_argument('-input_type', type=str, help='Pass your input type.')
     # parser.add_argument('-halide', type=str, default='F', help='Type of halide')
-    parser.add_argument('-output_info', type=str
-                                 help='Name of info file with full data information'))
-    parser.add_argument('-output_filtred', type=str
+    parser.add_argument('-output_info', type=str,
+                                 help='Name of info file with full data information')
+    parser.add_argument('-output_filtred', type=str,
                                  help='Name of file with filtered data information')
 
     args = parser.parse_args()
