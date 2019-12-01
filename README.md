@@ -40,7 +40,7 @@ snakemake all
 ## DAG of jobs  
 ![alt text](dag.svg)  
 ## Pipeline input  
-Pipline automatically creates input consisting of all PDB entries with halide sites 
+Pipeline automatically creates input consisting of all PDB entries with halide sites 
 
 Or you can collect your input by following rule:
 
