@@ -21,7 +21,81 @@ if (length(args)==0) {
 ###########################################
 
 df <- as_data_frame(fread(args[1]))
-cols <- c('#EFBC7B', '#FE6367', '#A52A2A', '#D97134')
+cols <- c('#330000', '#CC0033',  '#99FF33', '#FFFF00')
+
+###############################
+####### Water subset###########
+###############################
+permition = 0
+full_water <- df[df$residue_aa == 'HOH',]
+if ( nrow(full_water) != 0) {
+water_CL <- df[(df$residue_aa == 'HOH') & (df$halide == 'CL'),]
+water_I <- df[(df$residue_aa == 'HOH') & (df$halide == 'I'),]
+water_BR <- df[(df$residue_aa== 'HOH') & (df$halide == 'BR'),]
+
+I<- as.vector(unlist(lapply(unique(water_I$model_name), function(x) (table(water_I[water_I$model_name == x,]$id)))))
+CL <- as.vector(unlist(lapply(unique(water_CL$model_name), function(x) (table(water_CL[water_CL$model_name == x,]$id)))))
+BR <-  as.vector( unlist(lapply(unique(water_BR$model_name), function(x) (table(water_BR[water_BR$model_name == x,]$id)))))
+
+water <- plyr::ldply(lapply(c('BR','CL','I'), function(x)  data.frame(water_number = eval(parse(text = x)) , halide = x )), data.frame)
+permition = 1
+}
+###############################
+##### Water distribution#######
+###############################
+if (permition == 1) {
+pdf(file = paste0(args[3], 'water distribution.pdf'))
+
+water %>% mutate(halide=factor(halide, levels = rev(c('I', 'BR', 'CL')))) %>% 
+  ggplot(aes(water_number, fill=halide))+
+  geom_histogram(col='black',  alpha=0.8, bins = 11)+
+  scale_y_continuous('Count')+
+  scale_fill_manual(values = cols)+
+  scale_color_manual(values = cols)+
+  facet_wrap(halide~., scales = 'free')+
+  theme_bw()+
+  theme(strip.background = element_blank(), strip.text.x = element_blank())+
+  scale_x_continuous('Water molecules number', limits = c(0,11))
+dev.off()
+}
+###############################
+####### Water distance#########
+###############################
+if (permition == 1) {
+pdf(file = paste0(args[3], 'water distance.pdf'))
+full_water %>% mutate(distance=as.numeric(distance)) %>% 
+  mutate(halide=factor(halide, levels = rev(c('F', 'CL', 'BR', 'I')))) %>% 
+  ggplot( aes(halide, distance, fill=halide))+
+  geom_violin(show.legend = T, alpha=0.5, aes(col=halide))+
+  geom_boxplot(width=0.3, alpha=0.7, outlier.shape = NA, show.legend = T, col='indianred4')+
+  scale_fill_manual(values = cols)+
+  scale_color_manual(values = cols)+
+  scale_x_discrete('Halide')+
+  scale_y_continuous('Distance')+
+  coord_flip()+
+  theme_bw()+
+  theme(legend.position='top')
+dev.off()
+}
+###############################
+######## Water angles##########
+###############################
+if (permition == 1) {
+pdf(file = paste0(args[3], 'water angles.pdf'))
+full_water %>% mutate(angle=as.numeric(angle)) %>% 
+  mutate(halide=factor(halide, levels = rev(c('F', 'CL', 'BR', 'I')))) %>% 
+  ggplot( aes(halide, angle, fill=halide))+
+  geom_violin(show.legend = T, alpha=0.5, aes(col=halide))+
+  geom_boxplot(width=0.3, alpha=0.7, outlier.shape = NA, show.legend = T, col='indianred4')+
+  scale_fill_manual(values = cols)+
+  scale_color_manual(values = cols)+
+  scale_x_discrete('Halide')+
+  scale_y_continuous('Angle')+
+  coord_flip()+
+  theme_bw()+
+  theme(legend.position='top')
+dev.off()
+}
 
 ###########################################
 #### Coordination number distributinon ####
@@ -157,3 +231,5 @@ bind_rows(d_CL, d_BR, d_I) %>% mutate(halide=factor(halide, levels = rev(c('F', 
   scale_y_continuous('Count')+
   coord_flip()
 dev.off()
+
+
