@@ -40,6 +40,10 @@ snakemake all
 ## DAG of jobs  
 ![alt text](dag.svg)  
 ## Pipeline input  
+Pipline automatically creates input consisting of all PDB entries with halide sites 
+
+Or you can collect your input by following rule:
+
 Input consist of PDB ID, which separeted by ```\n```:
 ```
 3VRS
@@ -50,13 +54,14 @@ Input consist of PDB ID, which separeted by ```\n```:
 ```
 You should put the files in the directory ```data/pdb_ID/```, and give them a name according to a strict template ```pdb_entries_X.txt```, where ```X``` is (```F, Cl, Br, I```)
 ## Scripts description  
-1. rule fetch_structures (**fetch_structures.py**) - obtain structures from PDB;  
-2. rule filter (**filter.py**) - applies filters to PDB structures;  
-3. rule get_context_data (**get_context.py**) - applies filters to halide binding sites;   
-4. rule combine_final_data (**parse_context.py**) - aggregates data from all halides, then return 2 output files:
-  * aggregated information about (model_name, distances, angels, fASA, atom_type, residue_type, etc.);
+1. rule PDB_parser(**PDB_parser.py**) - obtain pdb ID PDB database
+2. rule fetch_structures (**fetch_structures.py**) - obtain structures from PDB;  
+3. rule filter (**filter.py**) - applies filters to PDB structures;  
+4. rule get_context_data (**get_context.py**) - applies filters to halide binding sites;   
+5. rule combine_final_data (**parse_context.py**) - aggregates data from all halides, then return 2 output files:
+  * aggregated information about (model_name, distances, angels, fASA, atom_type, residue_type, water distribution, etc);
   * aggregated information about compositions of amino acids.  
-5. rule figures_plotting (**figs.R**) - makes graphic report.  
+6. rule figures_plotting (**figs.R**) - makes graphic report.  
 ## References  
 1. Anaconda Software Distribution. Computer software. Vers. 2-2.4.0. Anaconda, Nov. 2016. Web. <https://anaconda.com>.  
 2. Mitternacht, S. FreeSASA: An open source C library for solvent accessible surface area calculations. F1000Research 5, 189 (2016).  
