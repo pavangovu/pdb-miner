@@ -21,7 +21,7 @@ if (length(args)==0) {
 ###########################################
 
 df <- as_data_frame(fread(args[1]))
-cols <- c('#330000', '#CC0033',  '#99FF33', '#FFFF00')
+  cols <- c('#330000', '#CC0033',  '#99FF33', '#FFFF00')
 
 ###############################
 ####### Water subset###########
@@ -29,6 +29,11 @@ cols <- c('#330000', '#CC0033',  '#99FF33', '#FFFF00')
 permition = 0
 full_water <- df[df$residue_aa == 'HOH',]
 if ( nrow(full_water) != 0) {
+
+number_of_sites_CL <- length(as.vector(unlist(lapply(unique(df$model_name), function(x) (table(df[df$model_name == x,]$id))))))
+number_of_sites_I <- length(as.vector(unlist(lapply(unique(df$model_name), function(x) (table(df[df$model_name == x,]$id))))))  
+number_of_sites_BR <- length(as.vector(unlist(lapply(unique(df$model_name), function(x) (table(df[df$model_name == x,]$id)))))) 
+
 water_CL <- df[(df$residue_aa == 'HOH') & (df$halide == 'CL'),]
 water_I <- df[(df$residue_aa == 'HOH') & (df$halide == 'I'),]
 water_BR <- df[(df$residue_aa== 'HOH') & (df$halide == 'BR'),]
@@ -37,26 +42,33 @@ I<- as.vector(unlist(lapply(unique(water_I$model_name), function(x) (table(water
 CL <- as.vector(unlist(lapply(unique(water_CL$model_name), function(x) (table(water_CL[water_CL$model_name == x,]$id)))))
 BR <-  as.vector( unlist(lapply(unique(water_BR$model_name), function(x) (table(water_BR[water_BR$model_name == x,]$id)))))
 
+without_water_sites_CL <- number_of_sites_CL - length(CL)
+without_water_sites_I <- number_of_sites_I - length(I)
+without_water_sites_BR <- number_of_sites_BR - length(BR)
+
+I <- c(I,rep(0,without_water_sites_I ))
+BR <- c(BR,rep(0,without_water_sites_BR ))
+CL <- c(CL,rep(0,without_water_sites_CL ))
+
 water <- plyr::ldply(lapply(c('BR','CL','I'), function(x)  data.frame(water_number = eval(parse(text = x)) , halide = x )), data.frame)
-permition = 1
+permition <-  1
 }
 ###############################
 ##### Water distribution#######
 ###############################
 if (permition == 1) {
 pdf(file = paste0(args[3], 'water distribution.pdf'))
-
-water %>% mutate(halide=factor(halide, levels = rev(c('I', 'BR', 'CL')))) %>% 
+water %>% mutate(halide=factor(halide, levels = rev(c('CL', 'BR', 'I')))) %>% 
   ggplot(aes(water_number, fill=halide))+
-  geom_histogram(col='black',  alpha=0.8, bins = 11)+
+  geom_histogram(col='black',  alpha=0.8, bins = 20)+
   scale_y_continuous('Count')+
   scale_fill_manual(values = cols)+
   scale_color_manual(values = cols)+
   facet_wrap(halide~., scales = 'free')+
   theme_bw()+
   theme(strip.background = element_blank(), strip.text.x = element_blank())+
-  scale_x_continuous('Water molecules number', limits = c(0,11))
-dev.off()
+  scale_x_continuous('Water molecules number', limits = c(-1,11))
+#dev.off()
 }
 ###############################
 ####### Water distance#########
@@ -75,7 +87,7 @@ full_water %>% mutate(distance=as.numeric(distance)) %>%
   coord_flip()+
   theme_bw()+
   theme(legend.position='top')
-dev.off()
+#dev.off()
 }
 ###############################
 ######## Water angles##########
@@ -94,7 +106,7 @@ full_water %>% mutate(angle=as.numeric(angle)) %>%
   coord_flip()+
   theme_bw()+
   theme(legend.position='top')
-dev.off()
+#dev.off()
 }
 
 ###########################################
