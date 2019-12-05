@@ -271,7 +271,7 @@ def main(args):
                     if args.C == 1:
                            
 
-                           modern_subset =modern_df[(modern_df.dist < args.angstrem_radius+0.5) & (modern_df.dist!=0)] # halide neighbors
+                           modern_subset = modern_df[(modern_df.dist < args.angstrem_radius+0.5) & (modern_df.dist!=0)] # halide neighbors
 
 
                     elif args.C == 2:
@@ -307,7 +307,7 @@ def main(args):
                  
                     Coordinate+=[xyz] # add coordinates
                     try:
-                              nearest=modern_subset2.loc[modern_subset['dist']==min(modern_subset['dist'])].values[0][[3,5,11,12,13,20,21]] #define the nearest atom
+                              nearest=modern_subset2.loc[modern_subset['dist']==min(modern_subset[modern_subset.record_name == 'ATOM']['dist'])].values[0][[3,5,11,12,13,20,21]] #define the nearest atom
       
                               Coordinate+=[nearest[2:5]] # add the nearest atom's coordinates
                     except:
