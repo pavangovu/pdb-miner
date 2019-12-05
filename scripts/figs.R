@@ -106,7 +106,7 @@ full_water %>% mutate(angle=as.numeric(angle)) %>%
   coord_flip()+
   theme_bw()+
   theme(legend.position='top')
-#dev.off()
+  #dev.off()
 }
 
 ###########################################
@@ -130,6 +130,7 @@ dev.off()
 ###############################
 #### Distance distribution ####
 ###############################
+df <-  df[df$atom_type != 'WATER',]
 
 pdf(file = paste0(args[3], 'Distance_distrb.pdf'))
 df %>% mutate(halide=factor(halide, levels = rev(c('F', 'CL', 'BR', 'I')))) %>% 
@@ -168,19 +169,19 @@ dev.off()
 ##### fASA distribution #######
 ###############################
 
-pdf(file = paste0(args[3], 'fASA_distrb.pdf'))
-df %>% mutate(halide=factor(halide, levels = rev(c('F', 'CL', 'BR', 'I')))) %>% 
-  group_by(halide, model_name, id) %>% summarise(asa=mean(asa)) %>% 
-  ggplot(aes(x=halide, y=asa, fill=halide))+
-  geom_violin(show.legend = F, alpha=0.5, aes(col=halide), adjust=3)+
-  geom_boxplot(width=0.3, alpha=0.7, outlier.shape = NA, show.legend = F, col='indianred4')+
-  scale_fill_manual(values = cols)+
-  scale_color_manual(values = cols)+
-  coord_flip()+
-  theme_bw()+
-  scale_x_discrete('Halide')+
-  scale_y_continuous('Fractial accessible surface area')
-dev.off()
+    pdf(file = paste0(args[3], 'fASA_distrb.pdf'))
+    df %>% mutate(halide=factor(halide, levels = rev(c('F', 'CL', 'BR', 'I')))) %>% 
+      group_by(halide, model_name, id) %>% summarise(asa=mean(asa)) %>% 
+      ggplot(aes(x=halide, y=asa, fill=halide))+
+      geom_violin(show.legend = F, alpha=0.5, aes(col=halide), adjust=3)+
+      geom_boxplot(width=0.3, alpha=0.7, outlier.shape = NA, show.legend = F, col='indianred4')+
+      scale_fill_manual(values = cols)+
+      scale_color_manual(values = cols)+
+      coord_flip()+
+      theme_bw()+
+      scale_x_discrete('Halide')+
+      scale_y_continuous('Fractial accessible surface area')
+    dev.off()
 
 ###############################
 ### Single atom frequence #####
