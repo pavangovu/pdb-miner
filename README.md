@@ -1,6 +1,6 @@
 # Halide sites
 ## Project availability
-You can clone whole repo by standart command:
+You can clone the whole repo by standart command:
 ```
 git clone https://github.com/rostkick/Halide_sites.git
 ```
